@@ -29,7 +29,7 @@ class MyMainWindow():
     def p(self):
         self.lab1.setText(f"Go to：{self.box.currentText()}")
         # pub = rospy.Publisher("/jssjsjsj/yyyy", String, queue_size=10)
-        pub = rospy.Publisher("/TopologyMap_server/goal", TopologyMapActionGoal, queue_size=1)
+        pub = rospy.Publisher("/TopologyMap_server/goal", TopologyMapActionGoal, queue_size=1, latch=True)
         # client = actionlib.SimpleActionClient('TopologyMap_server', forklift_server.msg.TopologyMapAction)
         # client.wait_for_server()
         # goal = forklift_server.msg.TopologyMapActionGoal(goal=self.box.currentText())
