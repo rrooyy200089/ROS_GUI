@@ -1,0 +1,3 @@
+<launch>
+    <node name="GUI_node" pkg="robot_control" type="GUI_test.py" output="screen" />
+</launch>
