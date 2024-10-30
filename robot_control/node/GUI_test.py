@@ -9,7 +9,7 @@ import subprocess, time
 # from process import Process 
 
 btn_text = [['導航點1', '導航點2', '結束'], ['導航點3', '導航點4', '重新啟動']]
-closing_order = ['gui', 'TopologyMap', 'navigation', 'SLAM', 'ZED', 'demo']  # 設定關閉順序
+closing_order = ['gui', 'laser', 'TopologyMap', 'navigation', 'SLAM', 'ZED', 'demo']  # 設定關閉順序
 
 class MainWindow(QtWidgets.QWidget):
     def __init__(self):
@@ -38,7 +38,7 @@ class MainWindow(QtWidgets.QWidget):
                 self.btn[i][j].setFixedSize(int((self.width()-10)/col_num), int((self.height()-10)/row_num))
                 self.btn[i][j].clicked.connect(btn_function[btn_text[i][j]])
                 self.grid.addWidget(self.btn[i][j], i, j, QtCore.Qt.AlignCenter)
-                
+
     # def show(self):
     #     self.show()
 
