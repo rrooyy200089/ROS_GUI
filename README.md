@@ -1,6 +1,10 @@
 # ROS_GUI
 
-### Installation
+## Description
+
+Ubuntu 20.04 ROS noetic
+
+## Installation
 ```
 $ mkdir ~/gui_ws
 $ cd ~/gui_ws
