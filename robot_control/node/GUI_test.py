@@ -17,6 +17,7 @@ class MainWindow(QtWidgets.QWidget):
         # self.form_event = QtWidgets.QMainWindow()
         self.setWindowTitle("Robot Control Interface")
         screen = QtWidgets.QDesktopWidget().screenGeometry()
+        # print("Screen width:", screen.width(), "Screen height:", screen.height())
         self.resize(screen.width(), screen.height()-70) #高-70是因為要減掉畫面中頂部時間那一條的顯示，這樣才是視窗可以顯示的大小
         # self.showMaximized()
         # self.resize(1500, 800)
@@ -57,7 +58,6 @@ class BtnPush():
         self.goal_name = 'P1'
         self.pub_goal()
         print("P1")
-        print(f'{window.width()}, {window.height()}')
 
     def p2(self):
         self.goal_name = 'P2'
@@ -119,10 +119,6 @@ if __name__ == "__main__":
     btn_function = {'導航點1':Btn.p1, '導航點2':Btn.p2, '導航點3':Btn.p3, '導航點4':Btn.p4, '結束':Btn.close, '重新啟動':Btn.reset}
     window.menu_ui(goal_list=[])
     window.show()
-    print(f'{window.size().width()}, {window.size().height()}')
-    screen = QtWidgets.QDesktopWidget().screenGeometry()
-    screen_width, screen_height = screen.width(), screen.height()
-    print("Screen width:", screen_width, "Screen height:", screen_height)
     sys.exit(app.exec_())
     # while app.exec_(): pass
     # rospy.signal_shutdown("GUI is shutdown")          
