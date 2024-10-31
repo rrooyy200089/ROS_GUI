@@ -17,7 +17,7 @@ class MainWindow(QtWidgets.QWidget):
         # self.form_event = QtWidgets.QMainWindow()
         self.setWindowTitle("Robot Control Interface")
         screen = QtWidgets.QDesktopWidget().screenGeometry()
-        self.resize(screen.width(), screen.height())
+        self.resize(screen.width(), screen.height()-70) #高-70是因為要減掉畫面中頂部時間那一條的顯示，這樣才是視窗可以顯示的大小
         # self.showMaximized()
         # self.resize(1500, 800)
         # self.setWindowState(self.WindowMaximized)
