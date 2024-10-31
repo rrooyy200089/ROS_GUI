@@ -16,8 +16,11 @@ class MainWindow(QtWidgets.QWidget):
         super().__init__()
         # self.form_event = QtWidgets.QMainWindow()
         self.setWindowTitle("Robot Control Interface")
-        self.resize(1500, 800)
-        # self.form.showMaximized()
+        screen = QtWidgets.QDesktopWidget().screenGeometry()
+        self.resize(screen.width(), screen.height())
+        # self.showMaximized()
+        # self.resize(1500, 800)
+        # self.setWindowState(self.WindowMaximized)
         self.btn = [[None] * 3 for _ in range(2)]
 
     def menu_ui(self, goal_list=[]):
@@ -35,7 +38,7 @@ class MainWindow(QtWidgets.QWidget):
                 # self.btn[i][j].setStyleSheet('''
                 #                              font-size:40px;
                 #                              ''')
-                self.btn[i][j].setFixedSize(int((self.width()-10)/col_num), int((self.height()-10)/row_num))
+                self.btn[i][j].setFixedSize(int((self.box.width()-10)/col_num), int((self.box.height()-10)/row_num))
                 self.btn[i][j].clicked.connect(btn_function[btn_text[i][j]])
                 self.grid.addWidget(self.btn[i][j], i, j, QtCore.Qt.AlignCenter)
 
@@ -54,6 +57,7 @@ class BtnPush():
         self.goal_name = 'P1'
         self.pub_goal()
         print("P1")
+        print(f'{window.width()}, {window.height()}')
 
     def p2(self):
         self.goal_name = 'P2'
@@ -115,6 +119,10 @@ if __name__ == "__main__":
     btn_function = {'導航點1':Btn.p1, '導航點2':Btn.p2, '導航點3':Btn.p3, '導航點4':Btn.p4, '結束':Btn.close, '重新啟動':Btn.reset}
     window.menu_ui(goal_list=[])
     window.show()
+    print(f'{window.size().width()}, {window.size().height()}')
+    screen = QtWidgets.QDesktopWidget().screenGeometry()
+    screen_width, screen_height = screen.width(), screen.height()
+    print("Screen width:", screen_width, "Screen height:", screen_height)
     sys.exit(app.exec_())
     # while app.exec_(): pass
     # rospy.signal_shutdown("GUI is shutdown")          
