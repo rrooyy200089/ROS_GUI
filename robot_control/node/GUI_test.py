@@ -16,9 +16,10 @@ class MainWindow(QtWidgets.QWidget):
         super().__init__()
         # self.form_event = QtWidgets.QMainWindow()
         self.setWindowTitle("Robot Control Interface")
-        screen = QtWidgets.QDesktopWidget().screenGeometry()
-        # print("Screen width:", screen.width(), "Screen height:", screen.height())
-        self.resize(screen.width(), screen.height()-70) #高-70是因為要減掉畫面中頂部時間那一條的顯示，這樣才是視窗可以顯示的大小
+        # self.screen = QtWidgets.QDesktopWidget().screenGeometry()
+        self.screen = app.primaryScreen().availableGeometry()
+        print("Screen width:", self.screen.width(), "Screen height:", self.screen.height())
+        self.resize(self.screen.width(), self.screen.height()) #高-70是因為要減掉畫面中頂部時間那一條的顯示，這樣才是視窗可以顯示的大小
         # self.showMaximized()
         # self.resize(1500, 800)
         # self.setWindowState(self.WindowMaximized)
@@ -26,7 +27,10 @@ class MainWindow(QtWidgets.QWidget):
 
     def menu_ui(self, goal_list=[]):
         self.box = QtWidgets.QWidget(self)
-        self.box.setGeometry(0, 0, self.width()-10, self.height()-10)
+        # self.box.setGeometry(0, 0, self.screen.width()-10, self.screen.height()-10)
+        self.box.setGeometry(0, 0, self.width()-10, self.height()-45)
+        # self.box.resize(self.width()-10, self.height()-70)
+        print("Screen width:", self.box.width(), "Screen height:", self.box.height())
         self.grid = QtWidgets.QGridLayout(self.box)
 
         row_num = len(btn_text)
