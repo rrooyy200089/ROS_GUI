@@ -83,6 +83,8 @@ class BtnPush():
         print("close")
 
     def reset(self):
+        # Procecss.close()
+        # Procecss.restart()
         print("reset")
 
     def pub_goal(self):
@@ -112,6 +114,24 @@ class Procecss():
                     subprocess.run(['kill', '-15', command_pid])
                     time.sleep(1)
                     break
+
+    def restart():
+        try:
+            # 使用 subprocess.run 執行指令
+            result = subprocess.run('~/project/gui_ws/src/robot_control/node/test.sh', shell=True, capture_output=True, text=True)
+            
+            # 判斷是否執行成功
+            if result.returncode == 0:
+                print("Command executed successfully.")
+                print("Output:")
+                print(result.stdout)  # 輸出結果
+            else:
+                print("Command failed with return code:", result.returncode)
+                print("Error message:")
+                print(result.stderr)  # 錯誤訊息
+        except Exception as e:
+            print("An error occurred while running the command:", e)
+        pass
 
 
 if __name__ == "__main__":
