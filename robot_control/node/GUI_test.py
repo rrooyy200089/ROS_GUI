@@ -17,15 +17,15 @@ class MainWindow(QtWidgets.QWidget):
         # self.form_event = QtWidgets.QMainWindow()
         self.setWindowTitle("Robot Control Interface")
         # self.screen = QtWidgets.QDesktopWidget().screenGeometry()
-        self.screen = app.primaryScreen().availableGeometry()
+        self.screen = app.primaryScreen().availableGeometry() # 得到畫面可以顯示範圍
         print("Screen width:", self.screen.width(), "Screen height:", self.screen.height())
-        self.resize(self.screen.width(), self.screen.height()) #高-70是因為要減掉畫面中頂部時間那一條的顯示，這樣才是視窗可以顯示的大小
+        self.resize(self.screen.width(), self.screen.height())
         # self.showMaximized()
         # self.resize(1500, 800)
         # self.setWindowState(self.WindowMaximized)
         self.btn = [[None] * 3 for _ in range(2)]
 
-    def menu_ui(self, goal_list=[]):
+    def menu_ui(self):
         self.box = QtWidgets.QWidget(self)
         # self.box.setGeometry(0, 0, self.screen.width()-10, self.screen.height()-10)
         self.box.setGeometry(0, 0, self.width()-10, self.height()-45)
@@ -141,7 +141,7 @@ if __name__ == "__main__":
     window = MainWindow()
     Btn = BtnPush()
     btn_function = {'導航點1':Btn.p1, '導航點2':Btn.p2, '導航點3':Btn.p3, '導航點4':Btn.p4, '結束':Btn.close, '重新啟動':Btn.reset}
-    window.menu_ui(goal_list=[])
+    window.menu_ui()
     window.show()
     sys.exit(app.exec_())
     # while app.exec_(): pass
