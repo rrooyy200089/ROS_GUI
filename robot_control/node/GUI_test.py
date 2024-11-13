@@ -5,7 +5,8 @@ import rospy
 import sys
 from PyQt5 import QtWidgets, QtCore, QtGui
 from forklift_server.msg import TopologyMapActionGoal
-import subprocess, time
+import subprocess, time, os
+from pathlib import Path
 # from process import Process 
 
 btn_text = [['導航點1', '導航點2', '結束'], ['導航點3', '導航點4', '重新啟動']]
@@ -83,8 +84,9 @@ class BtnPush():
         print("close")
 
     def reset(self):
-        # Procecss.close()
-        # Procecss.restart()
+        if os.path.exists(script_path):
+            Procecss.close()
+            Procecss.restart()
         print("reset")
 
     def pub_goal(self):
@@ -118,17 +120,15 @@ class Procecss():
     def restart():
         try:
             # 使用 subprocess.run 執行指令
-            result = subprocess.run('~/project/gui_ws/src/robot_control/node/test.sh', shell=True, capture_output=True, text=True)
+            result = subprocess.run(script_path, shell=True, capture_output=True, text=True)
             
             # 判斷是否執行成功
             if result.returncode == 0:
                 print("Command executed successfully.")
-                print("Output:")
-                print(result.stdout)  # 輸出結果
+                print(f"Output:\n{result.stdout}")  # 輸出結果
             else:
                 print("Command failed with return code:", result.returncode)
-                print("Error message:")
-                print(result.stderr)  # 錯誤訊息
+                print(f"Error message:\n{result.stderr}")   # 錯誤訊息
         except Exception as e:
             print("An error occurred while running the command:", e)
         pass
@@ -142,6 +142,8 @@ if __name__ == "__main__":
     Btn = BtnPush()
     btn_function = {'導航點1':Btn.p1, '導航點2':Btn.p2, '導航點3':Btn.p3, '導航點4':Btn.p4, '結束':Btn.close, '重新啟動':Btn.reset}
     window.menu_ui()
+    script_path = os.path.dirname(os.path.dirname(__file__)) + "/Script/restart_script.sh"
+    # print(script_path)
     window.show()
     sys.exit(app.exec_())
     # while app.exec_(): pass
