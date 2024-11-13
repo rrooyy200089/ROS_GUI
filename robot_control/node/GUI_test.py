@@ -6,7 +6,6 @@ import sys
 from PyQt5 import QtWidgets, QtCore, QtGui
 from forklift_server.msg import TopologyMapActionGoal
 import subprocess, time, os
-from pathlib import Path
 # from process import Process 
 
 btn_text = [['導航點1', '導航點2', '結束'], ['導航點3', '導航點4', '重新啟動']]
@@ -56,27 +55,22 @@ class MainWindow(QtWidgets.QWidget):
 
 class BtnPush():
     def __init__(self):
-        self.goal_name = ''
         self.pub = rospy.Publisher("/TopologyMap_server/goal", TopologyMapActionGoal, queue_size=1, latch=True)
 
     def p1(self):
-        self.goal_name = 'P1'
-        self.pub_goal()
+        self.pub_goal(goal_name='P1')
         print("P1")
 
     def p2(self):
-        self.goal_name = 'P2'
-        self.pub_goal()
+        self.pub_goal(goal_name='P2')
         print("P2")
 
     def p3(self):
-        self.goal_name = 'P3'
-        self.pub_goal()
+        self.pub_goal(goal_name='P3')
         print("P3")
 
     def p4(self):
-        self.goal_name = 'P4'
-        self.pub_goal()
+        self.pub_goal(goal_name='P4')
         print("P4")
 
     def close(self):
@@ -84,14 +78,16 @@ class BtnPush():
         print("close")
 
     def reset(self):
-        if os.path.exists(script_path):
+        if os.path.exists(script_path):  # 判斷檔案是否存在
             Procecss.close()
             Procecss.restart()
+        else :
+            print('No such file !!')
         print("reset")
 
-    def pub_goal(self):
+    def pub_goal(self, goal_name=''):
         goal = TopologyMapActionGoal()
-        goal.goal.goal = self.goal_name
+        goal.goal.goal = goal_name
         print(goal)
         self.pub.publish(goal)
 
