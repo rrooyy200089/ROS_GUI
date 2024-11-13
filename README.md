@@ -12,4 +12,5 @@ $ git clone https://github.com/rrooyy200089/ROS_GUI.git src
 $ catkin_make
 $ echo "source ~/gui_ws/devel/setup.bash" >> ~/.bashrc
 $ source ~/.bashrc
+$ chmod +x ~/gui_ws/src/robot_control/Script/restart_script.sh
 ```
