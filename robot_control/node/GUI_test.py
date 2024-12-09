@@ -3,12 +3,12 @@
 # from PyQt5.QtCore import QRect
 import rospy
 import sys
-from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5 import QtWidgets, QtCore, QtGui, QtMultimedia
 from forklift_server.msg import TopologyMapActionGoal
 import subprocess, time, os
 # from process import Process 
 
-btn_text = [['導航點1', '導航點2', '結束'], ['導航點3', '導航點4', '重新啟動']]
+btn_text = [['急診傳送區', '結束'], ['藥局', '重新啟動']]
 closing_order = ['gui', 'laser', 'TopologyMap', 'navigation', 'SLAM', 'ZED', 'demo']  # 設定關閉順序
 
 class MainWindow(QtWidgets.QWidget):
@@ -43,7 +43,7 @@ class MainWindow(QtWidgets.QWidget):
                 # self.btn[i][j].setStyleSheet('''
                 #                              font-size:40px;
                 #                              ''')
-                self.btn[i][j].setFixedSize(int((self.box.width()-10)/col_num), int((self.box.height()-10)/row_num))
+                self.btn[i][j].setFixedSize(int((self.box.width()-15)/col_num), int((self.box.height()-15)/row_num))
                 self.btn[i][j].clicked.connect(btn_function[btn_text[i][j]])
                 self.grid.addWidget(self.btn[i][j], i, j, QtCore.Qt.AlignCenter)
 
@@ -58,31 +58,33 @@ class BtnPush():
         self.pub = rospy.Publisher("/TopologyMap_server/goal", TopologyMapActionGoal, queue_size=1, latch=True)
 
     def p1(self):
-        self.pub_goal(goal_name='P1')
-        print("P1")
+        self.pub_goal(goal_name='P24')
+        # print("P1")
+        # player.playmusic()
 
     def p2(self):
-        self.pub_goal(goal_name='P2')
-        print("P2")
+        self.pub_goal(goal_name='P12')
+        # print("P2")
+        # player.stopmusic()
 
-    def p3(self):
-        self.pub_goal(goal_name='P3')
-        print("P3")
+    # def p3(self):
+    #     self.pub_goal(goal_name='P6')
+    #     # print("P3")
 
-    def p4(self):
-        self.pub_goal(goal_name='P4')
-        print("P4")
+    # def p4(self):
+    #     # self.pub_goal(goal_name='P4')
+    #     print("P4")
 
     def close(self):
         Procecss.close()
         print("close")
 
     def reset(self):
-        if os.path.exists(script_path):  # 判斷檔案是否存在
-            Procecss.close()
-            Procecss.restart()
-        else :
-            print('No such file !!')
+        # if os.path.exists(script_path):  # 判斷檔案是否存在
+        #     Procecss.close()
+        #     Procecss.restart()
+        # else :
+        #     print('No such file !!')
         print("reset")
 
     def pub_goal(self, goal_name=''):
@@ -129,6 +131,19 @@ class Procecss():
             print("An error occurred while running the command:", e)
         pass
 
+class NavigationPlayMusic():
+    def __init__(self):
+        self.player = QtMultimedia.QMediaPlayer()
+        qurl = QtCore.QUrl.fromLocalFile(music_path)
+        qmusic = QtMultimedia.QMediaContent(qurl)
+        self.player.setMedia(qmusic)
+        self.player.setVolume(70)
+
+    def playmusic(self):
+        self.player.play()
+
+    def stopmusic(self):
+        self.player.stop()
 
 if __name__ == "__main__":
     rospy.init_node('GUI_node')
@@ -136,9 +151,11 @@ if __name__ == "__main__":
     # while not rospy.is_shutdown():
     window = MainWindow()
     Btn = BtnPush()
-    btn_function = {'導航點1':Btn.p1, '導航點2':Btn.p2, '導航點3':Btn.p3, '導航點4':Btn.p4, '結束':Btn.close, '重新啟動':Btn.reset}
+    btn_function = {btn_text[0][0]:Btn.p1, btn_text[1][0]:Btn.p2, btn_text[0][1]:Btn.close, btn_text[1][1]:Btn.reset}
     window.menu_ui()
     script_path = os.path.dirname(os.path.dirname(__file__)) + "/Script/restart_script.sh"
+    music_path = os.path.dirname(os.path.dirname(__file__)) + "/music/Free_Music.mp3"
+    player = NavigationPlayMusic()
     # print(script_path)
     window.show()
     sys.exit(app.exec_())
