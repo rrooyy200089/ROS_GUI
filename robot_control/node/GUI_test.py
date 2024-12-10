@@ -139,10 +139,10 @@ class NavigationPlayMusic():
         self.player.setMedia(qmusic)
         self.player.setVolume(70)
 
-    def playmusic(self):
+    def play_music(self):
         self.player.play()
 
-    def stopmusic(self):
+    def stop_music(self):
         self.player.stop()
 
 if __name__ == "__main__":
