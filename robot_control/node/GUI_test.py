@@ -6,9 +6,10 @@ import sys
 from PyQt5 import QtWidgets, QtCore, QtGui, QtMultimedia
 from forklift_server.msg import TopologyMapActionGoal
 import subprocess, time, os
+from std_msgs.msg import Bool
 # from process import Process 
 
-btn_text = [['急診傳送區', '結束'], ['藥局', '重新啟動']]
+btn_text = [['急診室門口', '結束'], ['藥局', '重新啟動']]
 closing_order = ['gui', 'laser', 'TopologyMap', 'navigation', 'SLAM', 'ZED', 'demo']  # 設定關閉順序
 
 class MainWindow(QtWidgets.QWidget):
@@ -39,7 +40,7 @@ class MainWindow(QtWidgets.QWidget):
             for j in range(len(btn_text[i])):
                 self.btn[i][j] = QtWidgets.QPushButton(self)
                 self.btn[i][j].setText(btn_text[i][j])
-                self.btn[i][j].setFont(QtGui.QFont('標楷體', 40))
+                self.btn[i][j].setFont(QtGui.QFont('標楷體', 70))
                 # self.btn[i][j].setStyleSheet('''
                 #                              font-size:40px;
                 #                              ''')
@@ -58,14 +59,14 @@ class BtnPush():
         self.pub = rospy.Publisher("/TopologyMap_server/goal", TopologyMapActionGoal, queue_size=1, latch=True)
 
     def p1(self):
-        self.pub_goal(goal_name='P24')
+        self.pub_goal(goal_name='P11')
         # print("P1")
-        # player.playmusic()
+        # player.play_music()
 
     def p2(self):
-        self.pub_goal(goal_name='P12')
+        self.pub_goal(goal_name='P6')
         # print("P2")
-        # player.stopmusic()
+        # player.stop_music()
 
     # def p3(self):
     #     self.pub_goal(goal_name='P6')
@@ -133,17 +134,26 @@ class Procecss():
 
 class NavigationPlayMusic():
     def __init__(self):
+        self.playerlist = QtMultimedia.QMediaPlaylist()
         self.player = QtMultimedia.QMediaPlayer()
         qurl = QtCore.QUrl.fromLocalFile(music_path)
         qmusic = QtMultimedia.QMediaContent(qurl)
-        self.player.setMedia(qmusic)
-        self.player.setVolume(70)
+        self.playerlist.addMedia(qmusic)
+        self.playerlist.setPlaybackMode(QtMultimedia.QMediaPlaylist.Loop)
+        self.player.setPlaylist(self.playerlist)
+        self.navigation_state_sub = rospy.Subscriber('/NavigationState', Bool, self.navigation_state, queue_size=1)
 
     def play_music(self):
         self.player.play()
 
     def stop_music(self):
         self.player.stop()
+
+    def navigation_state(self, msg):
+        if msg.data :
+            self.play_music()
+
+        else : self.stop_music()
 
 if __name__ == "__main__":
     rospy.init_node('GUI_node')
