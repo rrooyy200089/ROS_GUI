@@ -6,7 +6,7 @@ import sys
 from PyQt5 import QtWidgets, QtCore, QtGui, QtMultimedia
 from forklift_server.msg import TopologyMapActionGoal
 import subprocess, time, os
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, Float64
 # from process import Process 
 
 btn_text = [['急診室門口', '結束'], ['藥局', '重新啟動']]
@@ -17,7 +17,6 @@ class MainWindow(QtWidgets.QWidget):
         super().__init__()
         # self.form_event = QtWidgets.QMainWindow()
         self.setWindowTitle("Robot Control Interface")
-        # self.screen = QtWidgets.QDesktopWidget().screenGeometry()
         self.screen = app.primaryScreen().availableGeometry() # 得到畫面可以顯示範圍
         print("Screen width:", self.screen.width(), "Screen height:", self.screen.height())
         self.resize(self.screen.width(), self.screen.height())
@@ -25,6 +24,8 @@ class MainWindow(QtWidgets.QWidget):
         # self.resize(1500, 800)
         # self.setWindowState(self.WindowMaximized)
         self.btn = [[None] * 3 for _ in range(2)]
+        self.car_power = rospy.Subscriber("/car_voltage", Float64, self.message_display, queue_size=1)
+        self.car_enable = True
 
     def menu_ui(self):
         self.box = QtWidgets.QWidget(self)
@@ -33,6 +34,54 @@ class MainWindow(QtWidgets.QWidget):
         # self.box.resize(self.width()-10, self.height()-70)
         print("Screen width:", self.box.width(), "Screen height:", self.box.height())
         self.grid = QtWidgets.QGridLayout(self.box)
+        self.mbox = QtWidgets.QMessageBox(self)
+        # self.mbox.setInformativeText("請幫車子充電")
+        # self.mbox = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Warning, "車子低電量警告", "車子電量過低", QtWidgets.QMessageBox.Ok)
+        # self.mbox.setStyleSheet("QLabel {min-width: 300px; min-height: 300px;} QPushButton:hover{background-color: rgb(255, 93, 52);}")
+        # self.mbox.setStyleSheet("QLabel {min-width: 300px; min-height: 300px;}")
+        # self.mbox.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        # self.mbox.setStyleSheet("QPushButton:hover{background-color: rgb(255, 93, 52);}")
+        # self.mbox.setStyleSheet('''
+        #                         QLabel{
+        #                         font-size:23pt;
+        #                         font-weight:bold;
+        #                         text-align:center;
+        #                         color:red;
+        #                         min-height:8ex;
+        #                         max-height:8ex;
+        #                         }
+        #                         QPushButton{
+        #                         font-size:22pt;
+        #                         min-height:3.2ex;
+        #                         max-height:3.2ex;
+        #                         min-width: 6.9ex;
+        #                         max-width: 6.9ex;
+        #                         icon-size: 33px;
+        #                         }
+        #                         ''')
+        
+        self.mbox.setStyleSheet('''
+                                QLabel{
+                                font-size:33px;
+                                font-weight:bold;
+                                text-align:center;
+                                color:red;
+                                min-height:150px;
+                                max-height:150px;
+                                }
+                                QPushButton{
+                                font-size:33px;
+                                min-height:60px;
+                                max-height:60px;
+                                min-width: 130px;
+                                max-width: 130px;
+                                icon-size: 33px;
+                                }
+                                ''')
+        # self.mbox.setBaseSize(QtCore.QSize(1000, 1000))
+        # self.mbox.sizeHint
+        # self.mbox.setFont(QtGui.QFont('標楷體', 28))
+        self.mbox.show()
 
         row_num = len(btn_text)
         for i in range(len(btn_text)):
@@ -47,6 +96,16 @@ class MainWindow(QtWidgets.QWidget):
                 self.btn[i][j].setFixedSize(int((self.box.width()-15)/col_num), int((self.box.height()-15)/row_num))
                 self.btn[i][j].clicked.connect(btn_function[btn_text[i][j]])
                 self.grid.addWidget(self.btn[i][j], i, j, QtCore.Qt.AlignCenter)
+
+    def message_display(self, msg):
+        if msg.data < 25 and self.car_enable:
+            # self.mbox.warning(self, "車子低電量警告", f"車子電量過低({msg.data}V)\n請先充電")
+            self.mbox.setIcon(QtWidgets.QMessageBox.Warning)
+            self.mbox.setWindowTitle("車子低電量警告")
+            self.mbox.setText(f"車子電量過低({msg.data}V)\n請先充電")
+            self.mbox.show()
+            self.car_enable = False
+
 
     # def show(self):
     #     self.show()
