@@ -24,7 +24,7 @@ class MainWindow(QtWidgets.QWidget):
         # self.resize(1500, 800)
         # self.setWindowState(self.WindowMaximized)
         self.btn = [[None] * 3 for _ in range(2)]
-        self.car_power = rospy.Subscriber("/car_voltage", Float64, self.message_display, queue_size=1)
+        rospy.Subscriber("/car_voltage", Float64, self.get_car_power, queue_size=1)
         self.car_enable = True
 
     def menu_ui(self):
@@ -34,7 +34,7 @@ class MainWindow(QtWidgets.QWidget):
         # self.box.resize(self.width()-10, self.height()-70)
         print("Screen width:", self.box.width(), "Screen height:", self.box.height())
         self.grid = QtWidgets.QGridLayout(self.box)
-        self.mbox = QtWidgets.QMessageBox(self)
+        # self.mbox = QtWidgets.QMessageBox(self)
         # self.mbox.setInformativeText("請幫車子充電")
         # self.mbox = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Warning, "車子低電量警告", "車子電量過低", QtWidgets.QMessageBox.Ok)
         # self.mbox.setStyleSheet("QLabel {min-width: 300px; min-height: 300px;} QPushButton:hover{background-color: rgb(255, 93, 52);}")
@@ -60,24 +60,30 @@ class MainWindow(QtWidgets.QWidget):
         #                         }
         #                         ''')
         
-        self.mbox.setStyleSheet('''
-                                QLabel{
-                                font-size:33px;
-                                font-weight:bold;
-                                text-align:center;
-                                color:red;
-                                min-height:150px;
-                                max-height:150px;
-                                }
-                                QPushButton{
-                                font-size:33px;
-                                min-height:60px;
-                                max-height:60px;
-                                min-width: 130px;
-                                max-width: 130px;
-                                icon-size: 33px;
-                                }
-                                ''')
+        # self.mbox.setStyleSheet('''
+        #                         QLabel{
+        #                         font-size:33px;
+        #                         font-weight:bold;
+        #                         text-align:center;
+        #                         color:red;
+        #                         min-height:150px;
+        #                         max-height:150px;
+        #                         }
+        #                         QPushButton{
+        #                         font-size:33px;
+        #                         min-height:60px;
+        #                         max-height:60px;
+        #                         min-width: 130px;
+        #                         max-width: 130px;
+        #                         icon-size: 33px;
+        #                         }
+        #                         ''')
+        
+        # self.mbox.setIcon(QtWidgets.QMessageBox.Warning)
+        # self.mbox.setWindowTitle("車子低電量警告")
+        # self.mbox.setText("車子電量過低(00.00V)\n請先充電")
+        # self.mbox.show()
+
         # self.mbox.setBaseSize(QtCore.QSize(1000, 1000))
         # self.mbox.sizeHint
         # self.mbox.setFont(QtGui.QFont('標楷體', 28))
@@ -96,15 +102,37 @@ class MainWindow(QtWidgets.QWidget):
                 self.btn[i][j].clicked.connect(btn_function[btn_text[i][j]])
                 self.grid.addWidget(self.btn[i][j], i, j, QtCore.Qt.AlignCenter)
 
-    def message_display(self, msg):
-        if msg.data < 25 and self.car_enable:
-            # self.mbox.warning(self, "車子低電量警告", f"車子電量過低({msg.data}V)\n請先充電")
-            self.mbox.setIcon(QtWidgets.QMessageBox.Warning)
-            self.mbox.setWindowTitle("車子低電量警告")
-            self.mbox.setText(f"車子電量過低({msg.data}V)\n請先充電")
-            self.mbox.show()
+    def get_car_power(self, msg):
+        self.car_power = msg.data
+        if self.car_power < 26 and self.car_enable:
+            self.message_display()
             self.car_enable = False
 
+    def message_display(self):
+        # self.mbox.warning(self, "車子低電量警告", f"車子電量過低({msg.data}V)\n請先充電")
+        mbox = QtWidgets.QMessageBox()
+        mbox.setStyleSheet('''
+                    QLabel{
+                    font-size:33px;
+                    font-weight:bold;
+                    text-align:center;
+                    color:red;
+                    min-height:150px;
+                    max-height:150px;
+                    }
+                    QPushButton{
+                    font-size:33px;
+                    min-height:60px;
+                    max-height:60px;
+                    min-width: 130px;
+                    max-width: 130px;
+                    icon-size: 33px;
+                    }
+                    ''')
+        mbox.setIcon(QtWidgets.QMessageBox.Warning)
+        mbox.setWindowTitle("車子低電量警告")
+        mbox.setText(f"車子電量過低({self.car_power}V)\n請先充電")
+        mbox.exec()
 
     # def show(self):
     #     self.show()
@@ -117,12 +145,18 @@ class BtnPush():
         self.pub = rospy.Publisher("/TopologyMap_server/goal", TopologyMapActionGoal, queue_size=1, latch=True)
 
     def p1(self):
-        self.pub_goal(goal_name='P11')
+        if(window.car_enable):
+            self.pub_goal(goal_name='P11')
+        else :
+            window.message_display()
         # print("P1")
         # player.play_music()
 
     def p2(self):
-        self.pub_goal(goal_name='P6')
+        if(window.car_enable):
+            self.pub_goal(goal_name='P6')
+        else :
+            window.message_display()
         # print("P2")
         # player.stop_music()
 
