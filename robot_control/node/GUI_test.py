@@ -81,7 +81,6 @@ class MainWindow(QtWidgets.QWidget):
         # self.mbox.setBaseSize(QtCore.QSize(1000, 1000))
         # self.mbox.sizeHint
         # self.mbox.setFont(QtGui.QFont('標楷體', 28))
-        self.mbox.show()
 
         row_num = len(btn_text)
         for i in range(len(btn_text)):
