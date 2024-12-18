@@ -105,7 +105,9 @@ class MainWindow(QtWidgets.QWidget):
     def get_car_power(self, msg):
         self.car_power = msg.data
         if self.car_power < 26 and self.car_enable:
-            self.message_display()
+            # QtCore.QMetaObject.invokeMethod(self, "message_display", QtCore.Qt.QueuedConnection)
+            QtCore.QTimer.singleShot(0, self.message_display)
+            # self.message_display()
             self.car_enable = False
 
     def message_display(self):
