@@ -99,12 +99,14 @@ class MainWindow(QtWidgets.QWidget):
                 #                              font-size:40px;
                 #                              ''')
                 self.btn[i][j].setFixedSize(int((self.box.width()-15)/col_num), int((self.box.height()-15)/row_num))
-                self.btn[i][j].clicked.connect(btn_function[btn_text[i][j]])
+                # self.btn[i][j].clicked.connect(btn_function[btn_text[i][j]])
+                self.btn[i][j].pressed.connect(btn_function_pressed[btn_text[i][j]])
+                self.btn[i][j].released.connect(btn_function[btn_text[i][j]])
                 self.grid.addWidget(self.btn[i][j], i, j, QtCore.Qt.AlignCenter)
 
     def get_car_power(self, msg):
         self.car_power = msg.data
-        if self.car_power < 26 and self.car_enable:
+        if self.car_power < 20 and self.car_enable:
             # QtCore.QMetaObject.invokeMethod(self, "message_display", QtCore.Qt.QueuedConnection)
             QtCore.QTimer.singleShot(0, self.message_display)
             # self.message_display()
@@ -146,15 +148,24 @@ class BtnPush():
     def __init__(self):
         self.pub = rospy.Publisher("/TopologyMap_server/goal", TopologyMapActionGoal, queue_size=1, latch=True)
 
+    def p1_pressed(self):
+        window.btn[0][0].setStyleSheet('''background-color : yellow''')
+
     def p1(self):
+        window.btn[0][0].setStyleSheet('''background-color : lightgray''')
         if(window.car_enable):
             self.pub_goal(goal_name='P11')
         else :
             window.message_display()
+
         # print("P1")
         # player.play_music()
 
+    def p2_pressed(self):
+        window.btn[1][0].setStyleSheet('''background-color : yellow''')
+    
     def p2(self):
+        window.btn[1][0].setStyleSheet('''background-color : lightgray''')
         if(window.car_enable):
             self.pub_goal(goal_name='P6')
         else :
@@ -170,11 +181,19 @@ class BtnPush():
     #     # self.pub_goal(goal_name='P4')
     #     print("P4")
 
+    def close_pressed(self):
+        window.btn[0][1].setStyleSheet('''background-color : yellow''')
+
     def close(self):
+        window.btn[0][1].setStyleSheet('''background-color : lightgray''')
         Procecss.close()
         print("close")
 
+    def reset_pressed(self):
+        window.btn[1][1].setStyleSheet('''background-color : yellow''')
+
     def reset(self):
+        window.btn[1][1].setStyleSheet('''background-color : lightgray''')
         # if os.path.exists(script_path):  # 判斷檔案是否存在
         #     Procecss.close()
         #     Procecss.restart()
@@ -256,6 +275,7 @@ if __name__ == "__main__":
     window = MainWindow()
     Btn = BtnPush()
     btn_function = {btn_text[0][0]:Btn.p1, btn_text[1][0]:Btn.p2, btn_text[0][1]:Btn.close, btn_text[1][1]:Btn.reset}
+    btn_function_pressed = {btn_text[0][0]:Btn.p1_pressed, btn_text[1][0]:Btn.p2_pressed, btn_text[0][1]:Btn.close_pressed, btn_text[1][1]:Btn.reset_pressed}
     window.menu_ui()
     script_path = os.path.dirname(os.path.dirname(__file__)) + "/Script/restart_script.sh"
     music_path = os.path.dirname(os.path.dirname(__file__)) + "/music/Free_Music.mp3"
