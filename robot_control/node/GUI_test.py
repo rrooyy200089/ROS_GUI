@@ -100,8 +100,8 @@ class MainWindow(QtWidgets.QWidget):
                 #                              ''')
                 self.btn[i][j].setFixedSize(int((self.box.width()-15)/col_num), int((self.box.height()-15)/row_num))
                 # self.btn[i][j].clicked.connect(btn_function[btn_text[i][j]])
-                self.btn[i][j].pressed.connect(btn_function_pressed[btn_text[i][j]])
-                self.btn[i][j].released.connect(btn_function[btn_text[i][j]])
+                self.btn[i][j].pressed.connect(lambda x=i, y=j: Btn.btn_pressed(x, y))  # 當按鈕"按下"時，所要執行的函式
+                self.btn[i][j].released.connect(btn_function[btn_text[i][j]]) # 當按鈕"放開"時，所要執行的函式
                 self.grid.addWidget(self.btn[i][j], i, j, QtCore.Qt.AlignCenter)
 
     def get_car_power(self, msg):
@@ -132,7 +132,7 @@ class MainWindow(QtWidgets.QWidget):
                     max-width: 130px;
                     icon-size: 33px;
                     }
-                    ''')
+                    ''')    # 設定MessageBox的顯示樣式
         mbox.setIcon(QtWidgets.QMessageBox.Warning)
         mbox.setWindowTitle("車子低電量警告")
         mbox.setText(f"車子電量過低({self.car_power}V)\n請先充電")
@@ -148,11 +148,12 @@ class BtnPush():
     def __init__(self):
         self.pub = rospy.Publisher("/TopologyMap_server/goal", TopologyMapActionGoal, queue_size=1, latch=True)
 
-    def p1_pressed(self):
-        window.btn[0][0].setStyleSheet('''background-color : yellow''')
+    def btn_pressed(self, x, y):        # 當按鈕按下時，會根據回傳的x, y值，將所對應的按鈕背景顏色改成黃色
+        # print(f"x:{x} y:{y}")
+        window.btn[x][y].setStyleSheet("background-color : yellow")
 
     def p1(self):
-        window.btn[0][0].setStyleSheet('''background-color : lightgray''')
+        window.btn[0][0].setStyleSheet("background-color : lightgray")
         if(window.car_enable):
             self.pub_goal(goal_name='P11')
         else :
@@ -160,12 +161,9 @@ class BtnPush():
 
         # print("P1")
         # player.play_music()
-
-    def p2_pressed(self):
-        window.btn[1][0].setStyleSheet('''background-color : yellow''')
     
     def p2(self):
-        window.btn[1][0].setStyleSheet('''background-color : lightgray''')
+        window.btn[1][0].setStyleSheet("background-color : lightgray")
         if(window.car_enable):
             self.pub_goal(goal_name='P6')
         else :
@@ -181,19 +179,13 @@ class BtnPush():
     #     # self.pub_goal(goal_name='P4')
     #     print("P4")
 
-    def close_pressed(self):
-        window.btn[0][1].setStyleSheet('''background-color : yellow''')
-
     def close(self):
-        window.btn[0][1].setStyleSheet('''background-color : lightgray''')
+        window.btn[0][1].setStyleSheet("background-color : lightgray")
         Procecss.close()
         print("close")
 
-    def reset_pressed(self):
-        window.btn[1][1].setStyleSheet('''background-color : yellow''')
-
     def reset(self):
-        window.btn[1][1].setStyleSheet('''background-color : lightgray''')
+        window.btn[1][1].setStyleSheet("background-color : lightgray")
         # if os.path.exists(script_path):  # 判斷檔案是否存在
         #     Procecss.close()
         #     Procecss.restart()
@@ -204,7 +196,7 @@ class BtnPush():
     def pub_goal(self, goal_name=''):
         goal = TopologyMapActionGoal()
         goal.goal.goal = goal_name
-        print(goal)
+        # print(goal)
         self.pub.publish(goal)
 
 class Procecss():
@@ -275,7 +267,6 @@ if __name__ == "__main__":
     window = MainWindow()
     Btn = BtnPush()
     btn_function = {btn_text[0][0]:Btn.p1, btn_text[1][0]:Btn.p2, btn_text[0][1]:Btn.close, btn_text[1][1]:Btn.reset}
-    btn_function_pressed = {btn_text[0][0]:Btn.p1_pressed, btn_text[1][0]:Btn.p2_pressed, btn_text[0][1]:Btn.close_pressed, btn_text[1][1]:Btn.reset_pressed}
     window.menu_ui()
     script_path = os.path.dirname(os.path.dirname(__file__)) + "/Script/restart_script.sh"
     music_path = os.path.dirname(os.path.dirname(__file__)) + "/music/Free_Music.mp3"
