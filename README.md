@@ -4,6 +4,8 @@
 
 Ubuntu 20.04 ROS noetic
 
+PyQt5 Version: 5.14.1
+
 ## Installation
 ```
 $ mkdir ~/gui_ws
