@@ -10,7 +10,7 @@ from std_msgs.msg import Bool, Float64
 # from process import Process 
 
 btn_text = [['急診室門口', '結束'], ['藥局', '重新啟動']]
-closing_order = ['gui', 'laser', 'TopologyMap', 'navigation', 'SLAM', 'ZED', 'demo']  # 設定關閉順序
+closing_order = ['laser', 'TopologyMap', 'navigation', 'SLAM', 'ZED', 'driver', 'gui']  # 設定關閉順序
 
 class MainWindow(QtWidgets.QWidget):
     def __init__(self):
