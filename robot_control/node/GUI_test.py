@@ -94,7 +94,7 @@ class MainWindow(QtWidgets.QWidget):
             for j in range(len(btn_text[i])):
                 self.btn[i][j] = QtWidgets.QPushButton(self)
                 self.btn[i][j].setText(btn_text[i][j])
-                self.btn[i][j].setFont(QtGui.QFont('標楷體', 70))
+                self.btn[i][j].setFont(QtGui.QFont('標楷體', 40)) #70
                 # self.btn[i][j].setStyleSheet('''
                 #                              font-size:40px;
                 #                              ''')
