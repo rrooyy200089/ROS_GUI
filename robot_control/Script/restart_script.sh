@@ -9,6 +9,22 @@ sleep 1
 gnome-terminal -t "RTAB-Map" --tab -- bash -c 'roslaunch ~/Launch/ZED2_VisualSLAM/CeilingSLAMwithZED2.launch localization:=true'
 sleep 1
 
+while true; do
+    # 使用 rostopic echo 抓取 frame_id
+    frame_id=$(rostopic echo -n 1 /tf/transforms[0]/header/frame_id 2>/dev/null | tr -d '"')
+
+    # echo -e "$frame_id"
+    
+    # 如果抓到的資料是 "map"
+    if [[ "$frame_id" == *"map"* ]]; then
+        # echo "Frame ID is 'map'. Proceeding to the next steps..."
+        break
+    else
+        # echo "Current Frame ID: $frame_id. Retrying..."
+        sleep 1  # 等待 1 秒後重試
+    fi
+done
+
 gnome-terminal -t "move_base" --tab -- bash -c 'roslaunch car_controller Meteor_navigation_3DLiDAR.launch'
 sleep 1
 
