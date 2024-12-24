@@ -10,7 +10,7 @@ from std_msgs.msg import Bool, Float64
 # from process import Process 
 
 btn_text = [['急診室門口', '結束'], ['藥局', '重新啟動']]
-closing_order = ['laser', 'TopologyMap', 'navigation', 'SLAM', 'ZED', 'driver', 'gui']  # 設定關閉順序
+closing_order = ['laser', 'TopologyMap', 'navigation', 'CeilingSLAMwithZED2', 'ZED', 'driver', 'gui']  # 設定關閉順序
 
 class MainWindow(QtWidgets.QWidget):
     def __init__(self):
@@ -181,16 +181,25 @@ class BtnPush():
 
     def close(self):
         window.btn[0][1].setStyleSheet("background-color : lightgray")
-        Procecss.close()
+        # time.sleep(1)
+        param = '-15'
+        enable = False
+        while True:
+            process = Process.find_process()
+            if len(process) <= 1 and enable: break
+            elif enable: param = '-9', print("Closing not completed yet!!!")
+            Process.close(ros_process=process, kill_param=param)
+            time.sleep(5)
+            enable = True
         print("close")
 
     def reset(self):
         window.btn[1][1].setStyleSheet("background-color : lightgray")
-        # if os.path.exists(script_path):  # 判斷檔案是否存在
-        #     Procecss.close()
-        #     Procecss.restart()
-        # else :
-        #     print('No such file !!')
+        if os.path.exists(script_path):  # 判斷檔案是否存在
+            self.close()
+            Process.restart()
+        else :
+            print('No such file !!')
         print("reset")
 
     def pub_goal(self, goal_name=''):
@@ -199,25 +208,28 @@ class BtnPush():
         # print(goal)
         self.pub.publish(goal)
 
-class Procecss():
-    def close():
+class Process():
+    def find_process():
         result = subprocess.run(['pgrep', '-fa', 'roslaunch|rosrun|roscore'], stdout=subprocess.PIPE)
         lines = result.stdout.decode().splitlines()
 
-        ros_process = {}
+        process = {}
         for line in lines:
             parts = line.split()
             pid = parts[0]
             name = ''.join(parts[3:])
-            ros_process[name] = pid
+            process[name] = pid
             # print(f'name : {name}  PID : {pid}')
+        
+        return process
 
+    def close(ros_process={}, kill_param='-15'):
         for i in closing_order:
             for command, command_pid in ros_process.items():
                 if i in command:
                     if 'gui' in command: window.close()
                     print(f'name : {command}  PID : {command_pid}')
-                    subprocess.run(['kill', '-15', command_pid])
+                    subprocess.run(['kill', f'{kill_param}', f'{command_pid}'])
                     time.sleep(1)
                     break
 
