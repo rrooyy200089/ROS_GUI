@@ -7,6 +7,7 @@ from PyQt5 import QtWidgets, QtCore, QtGui, QtMultimedia
 from forklift_server.msg import TopologyMapActionGoal
 import subprocess, time, os
 from std_msgs.msg import Bool, Float64
+import threading
 # from process import Process 
 
 btn_text = [['急診室門口', '結束'], ['藥局', '重新啟動']]
@@ -195,9 +196,20 @@ class BtnPush():
 
     def reset(self):
         window.btn[1][1].setStyleSheet("background-color : lightgray")
+        # c = threading.Thread(target=self.close())
+        # c.daemon = True
+        # r = threading.Thread(target=Process.restart())
+        # r.daemon = True
         if os.path.exists(script_path):  # 判斷檔案是否存在
             self.close()
-            Process.restart()
+            # c.start()
+            # Process.restart()
+            # c.start()
+            # c.join()
+            time.sleep(2)
+            r = threading.Thread(target=Process.restart())
+            r.daemon = True
+            r.start()
         else :
             print('No such file !!')
         print("reset")
@@ -229,25 +241,29 @@ class Process():
                 if i in command:
                     if 'gui' in command: window.close()
                     print(f'name : {command}  PID : {command_pid}')
-                    subprocess.run(['kill', f'{kill_param}', f'{command_pid}'])
+                    subprocess.run(['kill', kill_param, command_pid])
                     time.sleep(1)
                     break
 
     def restart():
+        # print(script_path)
         try:
             # 使用 subprocess.run 執行指令
-            result = subprocess.run(script_path, shell=True, capture_output=True, text=True)
+            # result = subprocess.run(script_path, shell=True, capture_output=True, text=True)
+            subprocess.Popen([script_path])
+            # subprocess.Popen([sys.executable, python_path])
+
             
             # 判斷是否執行成功
-            if result.returncode == 0:
-                print("Command executed successfully.")
-                print(f"Output:\n{result.stdout}")  # 輸出結果
-            else:
-                print("Command failed with return code:", result.returncode)
-                print(f"Error message:\n{result.stderr}")   # 錯誤訊息
+            # if result.returncode == 0:
+            #     print("Command executed successfully.")
+            #     print(f"Output:\n{result.stdout}")  # 輸出結果
+            # else:
+            #     print("Command failed with return code:", result.returncode)
+            #     print(f"Error message:\n{result.stderr}")   # 錯誤訊息
         except Exception as e:
             print("An error occurred while running the command:", e)
-        pass
+        # pass
 
 class NavigationPlayMusic():
     def __init__(self):
@@ -282,6 +298,7 @@ if __name__ == "__main__":
     window.menu_ui()
     script_path = os.path.dirname(os.path.dirname(__file__)) + "/Script/restart_script.sh"
     music_path = os.path.dirname(os.path.dirname(__file__)) + "/music/Free_Music.mp3"
+    python_path = os.path.dirname(os.path.dirname(__file__)) + "/node/restart_process.py"
     player = NavigationPlayMusic()
     # print(script_path)
     window.show()
