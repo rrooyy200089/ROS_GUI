@@ -113,7 +113,7 @@ class MainWindow(QtWidgets.QWidget):
             # self.message_display()
             self.car_enable = False
 
-    def message_display(self):
+    def message_display_power(self):
         # self.mbox.warning(self, "車子低電量警告", f"車子電量過低({msg.data}V)\n請先充電")
         mbox = QtWidgets.QMessageBox()
         mbox.setStyleSheet('''
@@ -139,6 +139,35 @@ class MainWindow(QtWidgets.QWidget):
         mbox.setText(f"車子電量過低({self.car_power}V)\n請先充電")
         mbox.exec()
 
+    def message_display_confirm(self):
+        mbox = QtWidgets.QMessageBox()
+        mbox.setStyleSheet('''
+                    QLabel{
+                    font-size:33px;
+                    font-weight:bold;
+                    text-align:center;
+                    color:red;
+                    min-height:150px;
+                    max-height:150px;
+                    }
+                    QPushButton{
+                    font-size:33px;
+                    min-height:60px;
+                    max-height:60px;
+                    min-width: 130px;
+                    max-width: 130px;
+                    icon-size: 33px;
+                    }
+                    ''')    # 設定MessageBox的顯示樣式
+        mbox.setIcon(QtWidgets.QMessageBox.Question)
+        mbox.setWindowTitle("動作確認")
+        mbox.setText(f"您確定要關閉程式嗎？")
+        mbox.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        mbox.setDefaultButton(QtWidgets.QMessageBox.Yes)
+        ret = mbox.exec()
+        return ret
+
+
     # def show(self):
     #     self.show()
 
@@ -158,7 +187,7 @@ class BtnPush():
         if(window.car_enable):
             self.pub_goal(goal_name='P11')
         else :
-            window.message_display()
+            window.message_display_power()
 
         # print("P1")
         # player.play_music()
@@ -168,7 +197,7 @@ class BtnPush():
         if(window.car_enable):
             self.pub_goal(goal_name='P6')
         else :
-            window.message_display()
+            window.message_display_power()
         # print("P2")
         # player.stop_music()
 
@@ -182,6 +211,8 @@ class BtnPush():
 
     def close(self):
         window.btn[0][1].setStyleSheet("background-color : lightgray")
+        ret = window.message_display_confirm()
+        if ret == QtWidgets.QMessageBox.No : return
         # time.sleep(1)
         param = '-15'
         enable = False
