@@ -109,11 +109,11 @@ class MainWindow(QtWidgets.QWidget):
         self.car_power = msg.data
         if self.car_power < 20 and self.car_enable:
             # QtCore.QMetaObject.invokeMethod(self, "message_display", QtCore.Qt.QueuedConnection)
-            QtCore.QTimer.singleShot(0, self.message_display)
+            QtCore.QTimer.singleShot(0, self.message_display(icon_style=QtWidgets.QMessageBox.Warning, message_title="車子低電量警告", message_text=f"車子電量過低({self.car_power}V)\n請先充電"))
             # self.message_display()
             self.car_enable = False
 
-    def message_display_power(self):
+    def message_display(self, icon_style, message_title, message_text):
         # self.mbox.warning(self, "車子低電量警告", f"車子電量過低({msg.data}V)\n請先充電")
         mbox = QtWidgets.QMessageBox()
         mbox.setStyleSheet('''
@@ -134,39 +134,14 @@ class MainWindow(QtWidgets.QWidget):
                     icon-size: 33px;
                     }
                     ''')    # 設定MessageBox的顯示樣式
-        mbox.setIcon(QtWidgets.QMessageBox.Warning)
-        mbox.setWindowTitle("車子低電量警告")
-        mbox.setText(f"車子電量過低({self.car_power}V)\n請先充電")
-        mbox.exec()
-
-    def message_display_confirm(self):
-        mbox = QtWidgets.QMessageBox()
-        mbox.setStyleSheet('''
-                    QLabel{
-                    font-size:33px;
-                    font-weight:bold;
-                    text-align:center;
-                    color:red;
-                    min-height:150px;
-                    max-height:150px;
-                    }
-                    QPushButton{
-                    font-size:33px;
-                    min-height:60px;
-                    max-height:60px;
-                    min-width: 130px;
-                    max-width: 130px;
-                    icon-size: 33px;
-                    }
-                    ''')    # 設定MessageBox的顯示樣式
-        mbox.setIcon(QtWidgets.QMessageBox.Question)
-        mbox.setWindowTitle("動作確認")
-        mbox.setText(f"您確定要關閉程式嗎？")
-        mbox.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-        mbox.setDefaultButton(QtWidgets.QMessageBox.Yes)
+        mbox.setIcon(icon_style)
+        mbox.setWindowTitle(message_title)
+        mbox.setText(message_text)
+        if message_title == "動作確認" :
+            mbox.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+            mbox.setDefaultButton(QtWidgets.QMessageBox.Yes)
         ret = mbox.exec()
         return ret
-
 
     # def show(self):
     #     self.show()
@@ -187,7 +162,7 @@ class BtnPush():
         if(window.car_enable):
             self.pub_goal(goal_name='P11')
         else :
-            window.message_display_power()
+            window.message_display(icon_style=QtWidgets.QMessageBox.Warning, message_title="車子低電量警告", message_text=f"車子電量過低({window.car_power}V)\n請先充電")
 
         # print("P1")
         # player.play_music()
@@ -197,7 +172,7 @@ class BtnPush():
         if(window.car_enable):
             self.pub_goal(goal_name='P6')
         else :
-            window.message_display_power()
+            window.message_display(icon_style=QtWidgets.QMessageBox.Warning, message_title="車子低電量警告", message_text=f"車子電量過低({window.car_power}V)\n請先充電")
         # print("P2")
         # player.stop_music()
 
@@ -211,7 +186,7 @@ class BtnPush():
 
     def close(self):
         window.btn[0][1].setStyleSheet("background-color : lightgray")
-        ret = window.message_display_confirm()
+        ret = window.message_display(icon_style=QtWidgets.QMessageBox.Question, message_title="動作確認", message_text="您確定要關閉程式嗎？")
         if ret == QtWidgets.QMessageBox.No : return
         # time.sleep(1)
         param = '-15'
@@ -227,22 +202,24 @@ class BtnPush():
 
     def reset(self):
         window.btn[1][1].setStyleSheet("background-color : lightgray")
+        ret = window.message_display(icon_style=QtWidgets.QMessageBox.Question, message_title="動作確認", message_text="您確定要重新啟動程式嗎？")
+        if ret == QtWidgets.QMessageBox.No : return
         # c = threading.Thread(target=self.close())
         # c.daemon = True
         # r = threading.Thread(target=Process.restart())
         # r.daemon = True
-        if os.path.exists(script_path):  # 判斷檔案是否存在
-            self.close()
-            # c.start()
-            # Process.restart()
-            # c.start()
-            # c.join()
-            time.sleep(2)
-            r = threading.Thread(target=Process.restart())
-            r.daemon = True
-            r.start()
-        else :
-            print('No such file !!')
+        # if os.path.exists(script_path):  # 判斷檔案是否存在
+        #     self.close()
+        #     # c.start()
+        #     # Process.restart()
+        #     # c.start()
+        #     # c.join()
+        #     time.sleep(2)
+        #     r = threading.Thread(target=Process.restart())
+        #     r.daemon = True
+        #     r.start()
+        # else :
+        #     print('No such file !!')
         print("reset")
 
     def pub_goal(self, goal_name=''):
