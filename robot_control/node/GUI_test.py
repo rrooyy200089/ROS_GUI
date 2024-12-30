@@ -24,8 +24,10 @@ class MainWindow(QtWidgets.QWidget):
         # self.showMaximized()
         # self.resize(1500, 800)
         # self.setWindowState(self.WindowMaximized)
+        self.m = MessageWindow()
         self.btn = [[None] * 3 for _ in range(2)]
         rospy.Subscriber("/car_voltage", Float64, self.get_car_power, queue_size=1)
+        self.car_power = 0
         self.car_enable = True
 
     def menu_ui(self):
@@ -107,47 +109,133 @@ class MainWindow(QtWidgets.QWidget):
 
     def get_car_power(self, msg):
         self.car_power = msg.data
-        if self.car_power < 20 and self.car_enable:
+        if self.car_power < 26 and self.car_enable:
             # QtCore.QMetaObject.invokeMethod(self, "message_display", QtCore.Qt.QueuedConnection)
-            QtCore.QTimer.singleShot(0, self.message_display(icon_style=QtWidgets.QMessageBox.Warning, message_title="車子低電量警告", message_text=f"車子電量過低({self.car_power}V)\n請先充電"))
+            QtCore.QTimer.singleShot(0, self.message_display)
+            # QtCore.QTimer.singleShot(0, lambda text = "沒電":self.message_display(message_text=text))
             # self.message_display()
             self.car_enable = False
 
-    def message_display(self, icon_style, message_title, message_text):
-        # self.mbox.warning(self, "車子低電量警告", f"車子電量過低({msg.data}V)\n請先充電")
-        mbox = QtWidgets.QMessageBox()
-        mbox.setStyleSheet('''
-                    QLabel{
-                    font-size:33px;
-                    font-weight:bold;
-                    text-align:center;
-                    color:red;
-                    min-height:150px;
-                    max-height:150px;
-                    }
-                    QPushButton{
-                    font-size:33px;
-                    min-height:60px;
-                    max-height:60px;
-                    min-width: 130px;
-                    max-width: 130px;
-                    icon-size: 33px;
-                    }
-                    ''')    # 設定MessageBox的顯示樣式
-        mbox.setIcon(icon_style)
-        mbox.setWindowTitle(message_title)
-        mbox.setText(message_text)
-        if message_title == "動作確認" :
-            mbox.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-            mbox.setDefaultButton(QtWidgets.QMessageBox.Yes)
-        ret = mbox.exec()
-        return ret
+    def message_display(self):
+        mbox = QtWidgets.QWidget()
+        mbox.resize(1400, 900)
+
+        mgrid = QtWidgets.QGridLayout(mbox)
+
+        lab_icon = QtWidgets.QLabel(self)
+        pixmap = QtGui.QPixmap(image_path)
+        scaled_pixmap = pixmap.scaled(800, 800)
+        lab_icon.setPixmap(scaled_pixmap)
+        mgrid.addWidget(lab_icon, 0, 0)
+
+        lab = QtWidgets.QLabel(self)
+        lab.setText("沒電")
+        lab.setFont(QtGui.QFont('Verdana', 90))
+        mgrid.addWidget(lab, 0, 1)
+
+        mbtn = QtWidgets.QPushButton(self)
+        mbtn.setText("OK")          
+        mbtn.setStyleSheet('''
+                        QPushButton{
+                        min-height:300px;   
+                        }
+                            ''')
+        mgrid.addWidget(mbtn, 1, 1)
+        mbox.show()
+
+        # # self.mbox.warning(self, "車子低電量警告", f"車子電量過低({msg.data}V)\n請先充電")
+        # mbox = QtWidgets.QMessageBox(self)
+        # # mbox.resize(2300, 900)
+        # # mbox.setGeometry(0, 0, 2000, 900)
+        # # print("Screen width:", mbox.width(), "Screen height:", mbox.height())
+        # mbox.setStyleSheet('''
+        #             QLabel{
+        #             font-size:600px;
+        #             font-weight:bold;
+        #             text-align:center;
+        #             color:red;
+        #             min-height:900px;
+        #             min-width: 2000px;
+        #             }
+        #             QPushButton{
+        #             font-size:80px;
+        #             min-height:120px;
+        #             max-height:120px;
+        #             min-width: 240px;
+        #             max-width: 240px;
+        #             icon-size: 70px;
+        #             }
+        #             ''')    # 設定MessageBox的顯示樣式
+        # mbox.setIcon(QtWidgets.QMessageBox.Warning)
+        # mbox.setWindowTitle("車子低電量警告")
+        # mbox.setText("沒電")
+        # ret = mbox.exec_()
+        # return ret
 
     # def show(self):
     #     self.show()
 
     # def closeEvent(self, self.form.event):
         # pass
+
+class MessageWindow(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("車子低電量警告")
+        self.screen = app.primaryScreen().availableGeometry() # 得到畫面可以顯示範圍
+        # print("Screen width:", self.screen.width(), "Screen height:", self.screen.height())
+        self.window_height = self.screen.height() - 400
+        self.window_width = self.screen.width() - 750
+        self.resize(self.window_width, self.window_height)
+        self.move(((self.screen.width() - self.window_width) // 2), ((self.screen.height() - self.window_height) // 2))
+        # self.setGeometry((self.screen.width()/2)-(self.window_width/2), (self.screen.height()/2)-(self.window_height/2), self.window_width, self.window_height)
+        self.ui()
+
+    def ui(self):
+        mbox = QtWidgets.QWidget(self)
+        mbox.setGeometry(0, 0, self.width()-10, self.height()-10)
+        # # mbox.setGeometry(10, 10, 1400, 900)
+        # print(f"vjskdbvu : {mbox.width()}")
+        mgrid = QtWidgets.QGridLayout(mbox)
+
+        lab_icon = QtWidgets.QLabel(self)
+        lab_icon.resize(400, 400)
+        # lab_icon.setStyleSheet('''QLabel{border : 2px solid black;}''')
+        pixmap = QtGui.QPixmap(image_path)
+        scaled_pixmap = pixmap.scaled(600, 600)
+        lab_icon.setPixmap(scaled_pixmap)
+        # lab_icon.setAlignment(QtCore.Qt.AlignCenter)
+        mgrid.addWidget(lab_icon, 0, 0)
+
+        lab = QtWidgets.QLabel(self)
+        lab.setStyleSheet('''
+                          QLabel{
+                          font-weight:bold;
+                          color:red;
+                          }''')
+        lab.setText("沒電")
+        lab.setFont(QtGui.QFont('標楷體', 300))
+        lab.setAlignment(QtCore.Qt.AlignRight)
+        mgrid.addWidget(lab, 0, 1)
+
+        mbtn = QtWidgets.QPushButton(self)
+        mbtn.setText("OK")
+        check_icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton)
+        mbtn.setIcon(check_icon) 
+        mbtn.setStyleSheet('''
+                        QPushButton{
+                        font-size:200px;
+                        min-height:300px;   
+                        }
+                            ''')
+        mbtn.setIconSize(mbtn.size() * 5)
+        mbtn.clicked.connect(self.btn)         
+        mgrid.addWidget(mbtn, 1, 0, 1, 2)
+        
+    def btn(self):
+        self.close()
+
+
 
 class BtnPush():
     def __init__(self):
@@ -159,10 +247,13 @@ class BtnPush():
 
     def p1(self):
         window.btn[0][0].setStyleSheet("background-color : lightgray")
+        # window.message_display()
+        window.m.show()
         if(window.car_enable):
             self.pub_goal(goal_name='P11')
         else :
-            window.message_display(icon_style=QtWidgets.QMessageBox.Warning, message_title="車子低電量警告", message_text=f"車子電量過低({window.car_power}V)\n請先充電")
+            # window.message_display(icon_style=QtWidgets.QMessageBox.Warning, message_title="車子低電量警告", message_text=f"車子電量過低({window.car_power}V)\n請先充電")
+            window.message_display()
 
         # print("P1")
         # player.play_music()
@@ -172,7 +263,8 @@ class BtnPush():
         if(window.car_enable):
             self.pub_goal(goal_name='P6')
         else :
-            window.message_display(icon_style=QtWidgets.QMessageBox.Warning, message_title="車子低電量警告", message_text=f"車子電量過低({window.car_power}V)\n請先充電")
+            # window.message_display(icon_style=QtWidgets.QMessageBox.Warning, message_title="車子低電量警告", message_text=f"車子電量過低({window.car_power}V)\n請先充電")
+            window.message_display()
         # print("P2")
         # player.stop_music()
 
@@ -186,8 +278,8 @@ class BtnPush():
 
     def close(self):
         window.btn[0][1].setStyleSheet("background-color : lightgray")
-        ret = window.message_display(icon_style=QtWidgets.QMessageBox.Question, message_title="動作確認", message_text="您確定要關閉程式嗎？")
-        if ret == QtWidgets.QMessageBox.No : return
+        # ret = window.message_display(icon_style=QtWidgets.QMessageBox.Question, message_title="動作確認", message_text="您確定要關閉程式嗎？")
+        # if ret == QtWidgets.QMessageBox.No : return
         # time.sleep(1)
         param = '-15'
         enable = False
@@ -196,14 +288,14 @@ class BtnPush():
             if len(process) <= 1 and enable: break
             elif enable: param = '-9', print("Closing not completed yet!!!")
             Process.close(ros_process=process, kill_param=param)
-            time.sleep(5)
+            time.sleep(1)
             enable = True
         print("close")
 
     def reset(self):
         window.btn[1][1].setStyleSheet("background-color : lightgray")
-        ret = window.message_display(icon_style=QtWidgets.QMessageBox.Question, message_title="動作確認", message_text="您確定要重新啟動程式嗎？")
-        if ret == QtWidgets.QMessageBox.No : return
+        # ret = window.message_display(icon_style=QtWidgets.QMessageBox.Question, message_title="動作確認", message_text="您確定要重新啟動程式嗎？")
+        # if ret == QtWidgets.QMessageBox.No : return
         # c = threading.Thread(target=self.close())
         # c.daemon = True
         # r = threading.Thread(target=Process.restart())
@@ -300,6 +392,7 @@ if __name__ == "__main__":
     rospy.init_node('GUI_node')
     app = QtWidgets.QApplication(sys.argv)
     # while not rospy.is_shutdown():
+    image_path = os.path.dirname(os.path.dirname(__file__)) + "/node/warning_big.png"
     window = MainWindow()
     Btn = BtnPush()
     btn_function = {btn_text[0][0]:Btn.p1, btn_text[1][0]:Btn.p2, btn_text[0][1]:Btn.close, btn_text[1][1]:Btn.reset}
