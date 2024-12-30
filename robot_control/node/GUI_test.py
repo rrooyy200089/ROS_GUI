@@ -184,12 +184,14 @@ class MessageWindow(QtWidgets.QWidget):
         self.setWindowTitle("車子低電量警告")
         self.screen = app.primaryScreen().availableGeometry() # 得到畫面可以顯示範圍
         # print("Screen width:", self.screen.width(), "Screen height:", self.screen.height())
-        self.window_height = self.screen.height() - 400
-        self.window_width = self.screen.width() - 750
+        self.dpi = int(app.primaryScreen().physicalDotsPerInch())
+        self.window_height = self.screen.height() - int(400*self.dpi//188)
+        self.window_width = self.screen.width() - int(750*self.dpi//188)
         self.resize(self.window_width, self.window_height)
         self.move(((self.screen.width() - self.window_width) // 2), ((self.screen.height() - self.window_height) // 2))
         # self.setGeometry((self.screen.width()/2)-(self.window_width/2), (self.screen.height()/2)-(self.window_height/2), self.window_width, self.window_height)
         self.ui()
+        print(f"svodnv  {app.primaryScreen().physicalDotsPerInch()}")
 
     def ui(self):
         mbox = QtWidgets.QWidget(self)
@@ -199,10 +201,12 @@ class MessageWindow(QtWidgets.QWidget):
         mgrid = QtWidgets.QGridLayout(mbox)
 
         lab_icon = QtWidgets.QLabel(self)
-        lab_icon.resize(400, 400)
+        lab_icon_size = int(400*self.dpi//188)
+        lab_icon.resize(lab_icon_size, lab_icon_size)
         # lab_icon.setStyleSheet('''QLabel{border : 2px solid black;}''')
         pixmap = QtGui.QPixmap(image_path)
-        scaled_pixmap = pixmap.scaled(600, 600)
+        pixmap_size = int(600*self.dpi//188)
+        scaled_pixmap = pixmap.scaled(pixmap_size, pixmap_size)
         lab_icon.setPixmap(scaled_pixmap)
         # lab_icon.setAlignment(QtCore.Qt.AlignCenter)
         mgrid.addWidget(lab_icon, 0, 0)
@@ -214,7 +218,7 @@ class MessageWindow(QtWidgets.QWidget):
                           color:red;
                           }''')
         lab.setText("沒電")
-        lab.setFont(QtGui.QFont('標楷體', 300))
+        lab.setFont(QtGui.QFont('標楷體', 70))
         lab.setAlignment(QtCore.Qt.AlignRight)
         mgrid.addWidget(lab, 0, 1)
 
@@ -222,11 +226,9 @@ class MessageWindow(QtWidgets.QWidget):
         mbtn.setText("OK")
         check_icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton)
         mbtn.setIcon(check_icon) 
-        mbtn.setStyleSheet('''
-                        QPushButton{
-                        font-size:200px;
-                        min-height:300px;   
-                        }
+        mbtn.setStyleSheet(f'''
+                        font-size:{int(200*self.dpi//188)}px;
+                        min-height:{int(300*self.dpi//188)}px;   
                             ''')
         mbtn.setIconSize(mbtn.size() * 5)
         mbtn.clicked.connect(self.btn)         
