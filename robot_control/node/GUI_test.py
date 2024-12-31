@@ -200,25 +200,29 @@ class MessageWindow(QtWidgets.QWidget):
         # print(f"vjskdbvu : {mbox.width()}")
         mgrid = QtWidgets.QGridLayout(mbox)
 
+        background_color = self.palette().color(self.backgroundRole())  # 得到視窗的背景顏色
+        color_name = background_color.name()  # 得到顏色的名稱
+
         lab_icon = QtWidgets.QLabel(self)
-        lab_icon_size = int(400*self.dpi//188)
+        lab_icon_size = int(600*self.dpi//188)
         lab_icon.resize(lab_icon_size, lab_icon_size)
-        # lab_icon.setStyleSheet('''QLabel{border : 2px solid black;}''')
+        lab_icon.setStyleSheet(f'''QLabel{{border : 2px solid {color_name};}}''')  # 將icon的邊框設成更背景顏色一樣，以便隱藏邊框
         pixmap = QtGui.QPixmap(image_path)
         pixmap_size = int(600*self.dpi//188)
         scaled_pixmap = pixmap.scaled(pixmap_size, pixmap_size)
         lab_icon.setPixmap(scaled_pixmap)
-        # lab_icon.setAlignment(QtCore.Qt.AlignCenter)
+        lab_icon.setAlignment(QtCore.Qt.AlignCenter)
         mgrid.addWidget(lab_icon, 0, 0)
 
         lab = QtWidgets.QLabel(self)
-        lab.setStyleSheet('''
-                          QLabel{
+        lab.setStyleSheet(f'''
+                          QLabel{{
                           font-weight:bold;
                           color:red;
-                          }''')
+                          border : 2px solid {color_name};  
+                          }}''')    # 將Label的邊框設成更背景顏色一樣，以便隱藏邊框
         lab.setText("沒電")
-        lab.setFont(QtGui.QFont('標楷體', 70))
+        lab.setFont(QtGui.QFont('標楷體', 270))
         lab.setAlignment(QtCore.Qt.AlignRight)
         mgrid.addWidget(lab, 0, 1)
 
@@ -227,9 +231,10 @@ class MessageWindow(QtWidgets.QWidget):
         check_icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton)
         mbtn.setIcon(check_icon) 
         mbtn.setStyleSheet(f'''
-                        font-size:{int(200*self.dpi//188)}px;
-                        min-height:{int(300*self.dpi//188)}px;   
-                            ''')
+                           QPushButton{{
+                           font-size:{int(200*self.dpi//188)}px;
+                           min-height:{int(300*self.dpi//188)}px;
+                           }}''')
         mbtn.setIconSize(mbtn.size() * 5)
         mbtn.clicked.connect(self.btn)         
         mgrid.addWidget(mbtn, 1, 0, 1, 2)
