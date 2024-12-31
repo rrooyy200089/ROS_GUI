@@ -178,7 +178,7 @@ class MainWindow(QtWidgets.QWidget):
     # def closeEvent(self, self.form.event):
         # pass
 
-class MessageWindow(QtWidgets.QWidget):
+class MessageWindow(QtWidgets.QDialog):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("車子低電量警告")
@@ -191,7 +191,7 @@ class MessageWindow(QtWidgets.QWidget):
         self.move(((self.screen.width() - self.window_width) // 2), ((self.screen.height() - self.window_height) // 2))
         # self.setGeometry((self.screen.width()/2)-(self.window_width/2), (self.screen.height()/2)-(self.window_height/2), self.window_width, self.window_height)
         self.ui()
-        print(f"svodnv  {app.primaryScreen().physicalDotsPerInch()}")
+        # print(f"svodnv  {app.primaryScreen().physicalDotsPerInch()}")
 
     def ui(self):
         mbox = QtWidgets.QWidget(self)
@@ -254,7 +254,7 @@ class BtnPush():
     def p1(self):
         window.btn[0][0].setStyleSheet("background-color : lightgray")
         # window.message_display()
-        window.m.show()
+        window.m.exec_()
         if(window.car_enable):
             self.pub_goal(goal_name='P11')
         else :
