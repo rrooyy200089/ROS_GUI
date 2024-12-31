@@ -24,7 +24,7 @@ class MainWindow(QtWidgets.QWidget):
         # self.showMaximized()
         # self.resize(1500, 800)
         # self.setWindowState(self.WindowMaximized)
-        self.m = MessageWindow()
+        self.msg_window = MessageWindow()
         self.btn = [[None] * 3 for _ in range(2)]
         rospy.Subscriber("/car_voltage", Float64, self.get_car_power, queue_size=1)
         self.car_power = 0
@@ -254,7 +254,7 @@ class BtnPush():
     def p1(self):
         window.btn[0][0].setStyleSheet("background-color : lightgray")
         # window.message_display()
-        window.m.exec_()
+        window.msg_window.exec_()
         if(window.car_enable):
             self.pub_goal(goal_name='P11')
         else :
