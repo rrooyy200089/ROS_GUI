@@ -25,6 +25,7 @@ class MainWindow(QtWidgets.QWidget):
         # self.resize(1500, 800)
         # self.setWindowState(self.WindowMaximized)
         self.msg_window = MessageWindow()
+        self.yesno_window = YesNoWindow()
         self.btn = [[None] * 3 for _ in range(2)]
         rospy.Subscriber("/car_voltage", Float64, self.get_car_power, queue_size=1)
         self.car_power = 0
@@ -241,6 +242,52 @@ class MessageWindow(QtWidgets.QDialog):
     def btn(self):
         self.close()
 
+class YesNoWindow(QtWidgets.QDialog):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("確認是否執行動作")
+        self.screen = app.primaryScreen().availableGeometry() # 得到畫面可以顯示範圍
+        # print("Screen width:", self.screen.width(), "Screen height:", self.screen.height())
+        self.dpi = int(app.primaryScreen().physicalDotsPerInch())
+        # self.window_height = self.screen.height() - int(130*self.dpi//188)
+        # self.window_width = self.screen.width() - int(500*self.dpi//188)
+        self.resize(int(self.screen.width()*0.8), int(self.screen.height()*0.8))
+        self.move(int((self.screen.width() - self.screen.width()*0.8) // 2), int((self.screen.height() - self.screen.height()*0.8) // 2))
+        self.ui()
+
+    def ui(self):
+        box = QtWidgets.QWidget(self)
+        box.setGeometry(0, 0, self.width()-10, self.height()-10)
+
+        grid = QtWidgets.QGridLayout(box)
+        
+        Ybtn = QtWidgets.QPushButton(self)
+        Ybtn.setText("Yes")
+        Ybtn.setObjectName("Yes")
+        yes_icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton)
+        Ybtn.setIcon(yes_icon)
+        Ybtn.setStyleSheet(f'''
+                           QPushButton{{
+                           font-size:{int(300*self.dpi//188)}px;
+                           min-height:{box.height()}px;
+                           }}''')
+        Ybtn.setIconSize(Ybtn.size() * 6)
+        Ybtn.clicked.connect(self.accept)
+        grid.addWidget(Ybtn, 0, 0)
+
+        Nbtn = QtWidgets.QPushButton(self)
+        Nbtn.setText("No")
+        Nbtn.setObjectName("No")
+        no_icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogCancelButton)
+        Nbtn.setIcon(no_icon)
+        Nbtn.setStyleSheet(f'''
+                           QPushButton{{
+                           font-size:{int(300*self.dpi//188)}px;
+                           min-height:{box.height()}px;
+                           }}''')
+        Nbtn.setIconSize(Nbtn.size() * 6)
+        Nbtn.clicked.connect(self.reject)
+        grid.addWidget(Nbtn, 0, 1)
 
 
 class BtnPush():
@@ -266,6 +313,8 @@ class BtnPush():
     
     def p2(self):
         window.btn[1][0].setStyleSheet("background-color : lightgray")
+        ret = window.yesno_window.exec_()
+        print('Yes' if ret == QtWidgets.QDialog.Accepted else "N0")
         if(window.car_enable):
             self.pub_goal(goal_name='P6')
         else :
