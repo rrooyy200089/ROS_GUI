@@ -104,6 +104,7 @@ class MainWindow(QtWidgets.QWidget):
                 #                              ''')
                 self.btn[i][j].setFixedSize(int((self.box.width()-15)/col_num), int((self.box.height()-15)/row_num))
                 # self.btn[i][j].clicked.connect(btn_function[btn_text[i][j]])
+                self.btn[i][j].setFocusPolicy(QtCore.Qt.NoFocus)     # 不要讓按鈕聚焦
                 self.btn[i][j].pressed.connect(lambda x=i, y=j: Btn.btn_pressed(x, y))  # 當按鈕"按下"時，所要執行的函式
                 self.btn[i][j].released.connect(btn_function[btn_text[i][j]]) # 當按鈕"放開"時，所要執行的函式
                 self.grid.addWidget(self.btn[i][j], i, j, QtCore.Qt.AlignCenter)
@@ -238,7 +239,8 @@ class MessageWindow(QtWidgets.QDialog):
         self.mbtn.setIconSize(self.mbtn.size() * 5)
         self.mbtn.pressed.connect(self.btn_pressed)  # 當按鈕"按下"時，所要執行的函式
         self.mbtn.released.connect(self.btn) # 當按鈕"放開"時，所要執行的函式
-        # self.mbtn.clicked.connect(self.btn)         
+        # self.mbtn.clicked.connect(self.btn)
+        self.mbtn.setFocusPolicy(QtCore.Qt.NoFocus)     # 不要讓按鈕聚焦
         mgrid.addWidget(self.mbtn, 1, 0, 1, 2)
 
     def btn_pressed(self):        # 當按鈕按下時，會將按鈕背景顏色改成黃色
@@ -280,6 +282,7 @@ class YesNoWindow(QtWidgets.QDialog):
         self.Ybtn.pressed.connect(lambda x="Yes": self.btn_pressed(x))  # 當按鈕"按下"時，所要執行的函式
         self.Ybtn.released.connect(self.accept) # 當按鈕"放開"時，所要執行的函式，其中函式為QDialog提供的方法
         # self.Ybtn.clicked.connect(self.accept)  # QDialog提供的方法
+        self.Ybtn.setFocusPolicy(QtCore.Qt.NoFocus)     # 不要讓按鈕聚焦
         grid.addWidget(self.Ybtn, 0, 0)
 
         self.Nbtn = QtWidgets.QPushButton(self)
@@ -295,6 +298,7 @@ class YesNoWindow(QtWidgets.QDialog):
         self.Nbtn.pressed.connect(lambda x="No": self.btn_pressed(x))  # 當按鈕"按下"時，所要執行的函式
         self.Nbtn.released.connect(self.reject) # 當按鈕"放開"時，所要執行的函式，其中函式為QDialog提供的方法
         # self.Nbtn.clicked.connect(self.reject)  # QDialog提供的方法
+        self.Nbtn.setFocusPolicy(QtCore.Qt.NoFocus)     # 不要讓按鈕聚焦
         grid.addWidget(self.Nbtn, 0, 1)
 
     def btn_pressed(self, x):        # 當按鈕按下時，會根據回傳的x內容，將所對應的按鈕背景顏色改成黃色
