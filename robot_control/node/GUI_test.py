@@ -195,11 +195,11 @@ class MessageWindow(QtWidgets.QDialog):
         # print(f"svodnv  {app.primaryScreen().physicalDotsPerInch()}")
 
     def ui(self):
-        mbox = QtWidgets.QWidget(self)
-        mbox.setGeometry(0, 0, self.width()-10, self.height()-10)
-        # # mbox.setGeometry(10, 10, 1400, 900)
-        # print(f"vjskdbvu : {mbox.width()}")
-        mgrid = QtWidgets.QGridLayout(mbox)
+        self.mbox = QtWidgets.QWidget(self)
+        self.mbox.setGeometry(0, 0, self.width()-10, self.height()-10)
+        # # self.mbox.setGeometry(10, 10, 1400, 900)
+        # print(f"vjskdbvu : {self.mbox.width()}")
+        mgrid = QtWidgets.QGridLayout(self.mbox)
 
         # background_color = self.palette().color(self.backgroundRole())  # 得到視窗的背景顏色
         # color_name = background_color.name()  # 得到顏色的名稱
@@ -226,20 +226,26 @@ class MessageWindow(QtWidgets.QDialog):
         lab.setAlignment(QtCore.Qt.AlignCenter)
         mgrid.addWidget(lab, 0, 1)
 
-        mbtn = QtWidgets.QPushButton(self)
-        mbtn.setText("OK")
+        self.mbtn = QtWidgets.QPushButton(self)
+        self.mbtn.setText("OK")
         check_icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton)
-        mbtn.setIcon(check_icon) 
-        mbtn.setStyleSheet(f'''
+        self.mbtn.setIcon(check_icon) 
+        self.mbtn.setStyleSheet(f'''
                            QPushButton{{
                            font-size:{int(200*self.dpi//188)}px;
                            min-height:{int(300*self.dpi//188)}px;
                            }}''')
-        mbtn.setIconSize(mbtn.size() * 5)
-        mbtn.clicked.connect(self.btn)         
-        mgrid.addWidget(mbtn, 1, 0, 1, 2)
-        
+        self.mbtn.setIconSize(self.mbtn.size() * 5)
+        self.mbtn.pressed.connect(self.btn_pressed)  # 當按鈕"按下"時，所要執行的函式
+        self.mbtn.released.connect(self.btn) # 當按鈕"放開"時，所要執行的函式
+        # self.mbtn.clicked.connect(self.btn)         
+        mgrid.addWidget(self.mbtn, 1, 0, 1, 2)
+
+    def btn_pressed(self):        # 當按鈕按下時，會將按鈕背景顏色改成黃色
+        self.mbtn.setStyleSheet(f"QPushButton{{background-color : yellow;font-size:{int(200*self.dpi//188)}px;min-height:{int(300*self.dpi//188)}px;}}")
+
     def btn(self):
+        self.mbtn.setStyleSheet(f"QPushButton{{background-color : lightgray;font-size:{int(200*self.dpi//188)}px;min-height:{int(300*self.dpi//188)}px;}}")
         self.close()
 
 class YesNoWindow(QtWidgets.QDialog):
@@ -256,38 +262,53 @@ class YesNoWindow(QtWidgets.QDialog):
         self.ui()
 
     def ui(self):
-        box = QtWidgets.QWidget(self)
-        box.setGeometry(0, 0, self.width()-10, self.height()-10)
+        self.box = QtWidgets.QWidget(self)
+        self.box.setGeometry(0, 0, self.width()-10, self.height()-10)
 
-        grid = QtWidgets.QGridLayout(box)
+        grid = QtWidgets.QGridLayout(self.box)
         
-        Ybtn = QtWidgets.QPushButton(self)
-        Ybtn.setText("Yes")
-        Ybtn.setObjectName("Yes")
+        self.Ybtn = QtWidgets.QPushButton(self)
+        self.Ybtn.setText("Yes")
         yes_icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton)
-        Ybtn.setIcon(yes_icon)
-        Ybtn.setStyleSheet(f'''
+        self.Ybtn.setIcon(yes_icon)
+        self.Ybtn.setStyleSheet(f'''
                            QPushButton{{
                            font-size:{int(300*self.dpi//188)}px;
-                           min-height:{box.height()}px;
+                           min-height:{self.box.height()}px;
                            }}''')
-        Ybtn.setIconSize(Ybtn.size() * 6)
-        Ybtn.clicked.connect(self.accept)
-        grid.addWidget(Ybtn, 0, 0)
+        self.Ybtn.setIconSize(self.Ybtn.size() * 6)
+        self.Ybtn.pressed.connect(lambda x="Yes": self.btn_pressed(x))  # 當按鈕"按下"時，所要執行的函式
+        self.Ybtn.released.connect(self.accept) # 當按鈕"放開"時，所要執行的函式，其中函式為QDialog提供的方法
+        # self.Ybtn.clicked.connect(self.accept)  # QDialog提供的方法
+        grid.addWidget(self.Ybtn, 0, 0)
 
-        Nbtn = QtWidgets.QPushButton(self)
-        Nbtn.setText("No")
-        Nbtn.setObjectName("No")
+        self.Nbtn = QtWidgets.QPushButton(self)
+        self.Nbtn.setText("No")
         no_icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogCancelButton)
-        Nbtn.setIcon(no_icon)
-        Nbtn.setStyleSheet(f'''
+        self.Nbtn.setIcon(no_icon)
+        self.Nbtn.setStyleSheet(f'''
                            QPushButton{{
                            font-size:{int(300*self.dpi//188)}px;
-                           min-height:{box.height()}px;
+                           min-height:{self.box.height()}px;
                            }}''')
-        Nbtn.setIconSize(Nbtn.size() * 6)
-        Nbtn.clicked.connect(self.reject)
-        grid.addWidget(Nbtn, 0, 1)
+        self.Nbtn.setIconSize(self.Nbtn.size() * 6)
+        self.Nbtn.pressed.connect(lambda x="No": self.btn_pressed(x))  # 當按鈕"按下"時，所要執行的函式
+        self.Nbtn.released.connect(self.reject) # 當按鈕"放開"時，所要執行的函式，其中函式為QDialog提供的方法
+        # self.Nbtn.clicked.connect(self.reject)  # QDialog提供的方法
+        grid.addWidget(self.Nbtn, 0, 1)
+
+    def btn_pressed(self, x):        # 當按鈕按下時，會根據回傳的x內容，將所對應的按鈕背景顏色改成黃色
+        (self.Ybtn if x == "Yes" else self.Nbtn).setStyleSheet(f"QPushButton{{background-color : yellow;font-size:{int(300*self.dpi//188)}px;min-height:{self.box.height()}px;}}")
+
+    def accept(self):
+        """覆寫 accept 方法，設置自定義返回值"""
+        self.Ybtn.setStyleSheet(f"QPushButton{{background-color : lightgray;font-size:{int(300*self.dpi//188)}px;min-height:{self.box.height()}px;}}")
+        super().accept()  # 調用父類的 accept，關閉對話框
+
+    def reject(self):
+        """覆寫 reject 方法，清除自定義返回值"""
+        self.Nbtn.setStyleSheet(f"QPushButton{{background-color : lightgray;font-size:{int(300*self.dpi//188)}px;min-height:{self.box.height()}px;}}")
+        super().reject()  # 調用父類的 reject，關閉對話框
 
 
 class BtnPush():
