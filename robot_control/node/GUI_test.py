@@ -10,7 +10,7 @@ from std_msgs.msg import Bool, Float64
 import threading
 # from process import Process 
 
-btn_text = [['急診室門口', '結束'], ['藥局', '重新啟動']]
+btn_text = [['急診', '結束'], ['藥局', '重啟']]
 closing_order = ['laser', 'TopologyMap', 'navigation', 'CeilingSLAMwithZED2', 'ZED', 'driver', 'gui']  # 設定關閉順序
 
 class MainWindow(QtWidgets.QWidget):
@@ -42,10 +42,11 @@ class MainWindow(QtWidgets.QWidget):
             for j in range(len(btn_text[i])):
                 self.btn[i][j] = QtWidgets.QPushButton(self)
                 self.btn[i][j].setText(btn_text[i][j])
-                self.btn[i][j].setFont(QtGui.QFont('標楷體', 40)) #70
-                # self.btn[i][j].setStyleSheet('''
-                #                              font-size:40px;
-                #                              ''')
+                self.btn[i][j].setFont(QtGui.QFont('標楷體', 130)) #70
+                self.btn[i][j].setStyleSheet('''
+                                             QPushButton{
+                                             border : 1px solid gray;
+                                             }''')
                 self.btn[i][j].setFixedSize(int((self.box.width()-15)/col_num), int((self.box.height()-15)/row_num))
                 # self.btn[i][j].clicked.connect(btn_function[btn_text[i][j]])
                 self.btn[i][j].setFocusPolicy(QtCore.Qt.NoFocus)     # 不要讓按鈕聚焦
@@ -76,7 +77,7 @@ class CarMessageWindow(QtWidgets.QDialog):
         rospy.Subscriber("/car_voltage", Float64, self.get_car_power, queue_size=1)
         self.car_power = 0
         self.car_enable = True
-        self.image_path = os.path.dirname(os.path.dirname(__file__)) + "/node/warning_big.png"
+        self.image_path = project_path + "/node/warning_big.png"
         self.ui()
         # print(f"svodnv  {app.primaryScreen().physicalDotsPerInch()}")
 
@@ -114,11 +115,11 @@ class CarMessageWindow(QtWidgets.QDialog):
 
         self.mbtn = QtWidgets.QPushButton(self)
         self.mbtn.setText("OK")
+        self.mbtn.setFont(QtGui.QFont('Times New Roman', int(200*self.dpi//188)))
         check_icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton)
         self.mbtn.setIcon(check_icon) 
         self.mbtn.setStyleSheet(f'''
                            QPushButton{{
-                           font-size:{int(200*self.dpi//188)}px;
                            min-height:{int(300*self.dpi//188)}px;
                            }}''')
         self.mbtn.setIconSize(self.mbtn.size() * 5)
@@ -138,10 +139,10 @@ class CarMessageWindow(QtWidgets.QDialog):
             self.car_enable = False
 
     def btn_pressed(self):        # 當按鈕按下時，會將按鈕背景顏色改成黃色
-        self.mbtn.setStyleSheet(f"QPushButton{{background-color : yellow;font-size:{int(200*self.dpi//188)}px;min-height:{int(300*self.dpi//188)}px;}}")
+        self.mbtn.setStyleSheet(f"QPushButton{{background-color : yellow;min-height:{int(300*self.dpi//188)}px;}}")
 
     def btn(self):
-        self.mbtn.setStyleSheet(f"QPushButton{{background-color : lightgray;font-size:{int(200*self.dpi//188)}px;min-height:{int(300*self.dpi//188)}px;}}")
+        self.mbtn.setStyleSheet(f"QPushButton{{background-color : lightgray;min-height:{int(300*self.dpi//188)}px;}}")
         self.close()
 
 class YesNoWindow(QtWidgets.QDialog):
@@ -155,6 +156,7 @@ class YesNoWindow(QtWidgets.QDialog):
         # self.window_width = self.screen.width() - int(500*self.dpi//188)
         self.resize(int(self.screen.width()*0.8), int(self.screen.height()*0.8))
         self.move(int((self.screen.width() - self.screen.width()*0.8) // 2), int((self.screen.height() - self.screen.height()*0.8) // 2))
+        self.font_size = 160*self.dpi//188
         self.ui()
 
     def ui(self):
@@ -164,15 +166,16 @@ class YesNoWindow(QtWidgets.QDialog):
         grid = QtWidgets.QGridLayout(self.box)
         
         self.Ybtn = QtWidgets.QPushButton(self)
-        self.Ybtn.setText("Yes")
+        self.Ybtn.setText("開始")
         yes_icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton)
         self.Ybtn.setIcon(yes_icon)
+        self.Ybtn.setFont(QtGui.QFont('標楷體', self.font_size))
         self.Ybtn.setStyleSheet(f'''
                            QPushButton{{
-                           font-size:{int(300*self.dpi//188)}px;
+                           min-width:{int(((self.box.width()-25)//2)*self.dpi//188)}px;
                            min-height:{self.box.height()}px;
                            }}''')
-        self.Ybtn.setIconSize(self.Ybtn.size() * 6)
+        self.Ybtn.setIconSize(self.Ybtn.size() * 5)
         self.Ybtn.pressed.connect(lambda x="Yes": self.btn_pressed(x))  # 當按鈕"按下"時，所要執行的函式
         self.Ybtn.released.connect(self.accept) # 當按鈕"放開"時，所要執行的函式，其中函式為QDialog提供的方法
         # self.Ybtn.clicked.connect(self.accept)  # QDialog提供的方法
@@ -180,15 +183,16 @@ class YesNoWindow(QtWidgets.QDialog):
         grid.addWidget(self.Ybtn, 0, 0)
 
         self.Nbtn = QtWidgets.QPushButton(self)
-        self.Nbtn.setText("No")
+        self.Nbtn.setText("取消")
         no_icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogCancelButton)
         self.Nbtn.setIcon(no_icon)
+        self.Nbtn.setFont(QtGui.QFont('標楷體', self.font_size))
         self.Nbtn.setStyleSheet(f'''
                            QPushButton{{
-                           font-size:{int(300*self.dpi//188)}px;
+                           min-width:{int(((self.box.width()-10)//2)*self.dpi//188)}px;
                            min-height:{self.box.height()}px;
                            }}''')
-        self.Nbtn.setIconSize(self.Nbtn.size() * 6)
+        self.Nbtn.setIconSize(self.Nbtn.size() * 5)
         self.Nbtn.pressed.connect(lambda x="No": self.btn_pressed(x))  # 當按鈕"按下"時，所要執行的函式
         self.Nbtn.released.connect(self.reject) # 當按鈕"放開"時，所要執行的函式，其中函式為QDialog提供的方法
         # self.Nbtn.clicked.connect(self.reject)  # QDialog提供的方法
@@ -196,16 +200,16 @@ class YesNoWindow(QtWidgets.QDialog):
         grid.addWidget(self.Nbtn, 0, 1)
 
     def btn_pressed(self, x):        # 當按鈕按下時，會根據回傳的x內容，將所對應的按鈕背景顏色改成黃色
-        (self.Ybtn if x == "Yes" else self.Nbtn).setStyleSheet(f"QPushButton{{background-color : yellow;font-size:{int(300*self.dpi//188)}px;min-height:{self.box.height()}px;}}")
+        (self.Ybtn if x == "Yes" else self.Nbtn).setStyleSheet(f"QPushButton{{background-color : yellow;min-width:{int(((self.box.width()-10)//2)*self.dpi//188)}px;min-height:{self.box.height()}px;}}")
 
     def accept(self):
         """覆寫 accept 方法，設置自定義返回值"""
-        self.Ybtn.setStyleSheet(f"QPushButton{{background-color : lightgray;font-size:{int(300*self.dpi//188)}px;min-height:{self.box.height()}px;}}")
+        self.Ybtn.setStyleSheet(f"QPushButton{{background-color : lightgray;min-width:{int(((self.box.width()-10)//2)*self.dpi//188)}px;min-height:{self.box.height()}px;}}")
         super().accept()  # 調用父類的 accept，關閉對話框
 
     def reject(self):
         """覆寫 reject 方法，清除自定義返回值"""
-        self.Nbtn.setStyleSheet(f"QPushButton{{background-color : lightgray;font-size:{int(300*self.dpi//188)}px;min-height:{self.box.height()}px;}}")
+        self.Nbtn.setStyleSheet(f"QPushButton{{background-color : lightgray;min-width:{int(((self.box.width()-10)//2)*self.dpi//188)}px;min-height:{self.box.height()}px;}}")
         super().reject()  # 調用父類的 reject，關閉對話框
 
 
@@ -219,7 +223,7 @@ class BtnPush():
 
     def p1(self):
         window.btn[0][0].setStyleSheet("background-color : lightgray")
-        # window.car_msg_window.exec_()
+        window.car_msg_window.exec_()
         if(window.car_msg_window.car_enable):
             ret = window.yesno_window.exec_()
             if ret == QtWidgets.QDialog.Rejected : return
@@ -366,13 +370,14 @@ if __name__ == "__main__":
     rospy.init_node('GUI_node')
     app = QtWidgets.QApplication(sys.argv)
     # while not rospy.is_shutdown():
+    project_path = os.path.dirname(os.path.dirname(__file__))
     window = MainWindow()
     Btn = BtnPush()
     btn_function = {btn_text[0][0]:Btn.p1, btn_text[1][0]:Btn.p2, btn_text[0][1]:Btn.close, btn_text[1][1]:Btn.reset}
     window.menu_ui()
-    script_path = os.path.dirname(os.path.dirname(__file__)) + "/Script/restart_script.sh"
-    music_path = os.path.dirname(os.path.dirname(__file__)) + "/music/Free_Music.mp3"
-    python_path = os.path.dirname(os.path.dirname(__file__)) + "/node/restart_process.py"
+    script_path = project_path + "/Script/restart_script.sh"
+    music_path = project_path + "/music/Free_Music.mp3"
+    python_path = project_path + "/node/restart_process.py"
     player = NavigationPlayMusic()
     # print(script_path)
     window.show()
