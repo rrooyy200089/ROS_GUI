@@ -77,13 +77,13 @@ class CarMessageWindow(QtWidgets.QDialog):
         rospy.Subscriber("/car_voltage", Float64, self.get_car_power, queue_size=1)
         self.car_power = 0
         self.car_enable = True
-        self.image_path = project_path + "/node/warning_big.png"
+        self.image_path = project_path + "/node/low-battery.png"
         self.ui()
         # print(f"svodnv  {app.primaryScreen().physicalDotsPerInch()}")
 
     def ui(self):
         self.mbox = QtWidgets.QWidget(self)
-        self.mbox.setGeometry(0, 0, self.width()-10, self.height()-10)
+        self.mbox.setGeometry(0, 0, self.width()-(6*self.dpi//188), self.height()-(6*self.dpi//188))
         # # self.mbox.setGeometry(10, 10, 1400, 900)
         # print(f"vjskdbvu : {self.mbox.width()}")
         mgrid = QtWidgets.QGridLayout(self.mbox)
@@ -92,26 +92,16 @@ class CarMessageWindow(QtWidgets.QDialog):
         # color_name = background_color.name()  # 得到顏色的名稱
 
         lab_icon = QtWidgets.QLabel(self)
-        lab_icon_size = int(750*self.dpi//188)
-        lab_icon.resize(lab_icon_size, lab_icon_size)
+        # lab_icon_size = int(750*self.dpi//188)
+        # lab_icon.resize(lab_icon_size, lab_icon_size)
         # lab_icon.setStyleSheet(f'''QLabel{{border : 2px solid {color_name};}}''')  # 將icon的邊框設成更背景顏色一樣，以便隱藏邊框
+        # lab_icon.setStyleSheet(f'''QLabel{{border : 2px solid black;}}''')  # 將icon的邊框設成更背景顏色一樣，以便隱藏邊框
         pixmap = QtGui.QPixmap(self.image_path)
         pixmap_size = int(750*self.dpi//188)
-        scaled_pixmap = pixmap.scaled(pixmap_size, pixmap_size)
+        scaled_pixmap = pixmap.scaled(pixmap_size*1.76552, pixmap_size) #!!!!!!!!
         lab_icon.setPixmap(scaled_pixmap)
         lab_icon.setAlignment(QtCore.Qt.AlignCenter)
         mgrid.addWidget(lab_icon, 0, 0)
-
-        lab = QtWidgets.QLabel(self)
-        lab.setStyleSheet(f'''
-                          QLabel{{
-                          font-weight:bold;
-                          color:red;  
-                          }}''')
-        lab.setText("沒電")
-        lab.setFont(QtGui.QFont('標楷體', int(300*self.dpi//188)))
-        lab.setAlignment(QtCore.Qt.AlignCenter)
-        mgrid.addWidget(lab, 0, 1)
 
         self.mbtn = QtWidgets.QPushButton(self)
         self.mbtn.setText("OK")
@@ -127,7 +117,7 @@ class CarMessageWindow(QtWidgets.QDialog):
         self.mbtn.released.connect(self.btn) # 當按鈕"放開"時，所要執行的函式
         # self.mbtn.clicked.connect(self.btn)
         self.mbtn.setFocusPolicy(QtCore.Qt.NoFocus)     # 不要讓按鈕聚焦
-        mgrid.addWidget(self.mbtn, 1, 0, 1, 2)
+        mgrid.addWidget(self.mbtn, 1, 0)
 
     def get_car_power(self, msg):
         self.car_power = msg.data
@@ -161,21 +151,19 @@ class YesNoWindow(QtWidgets.QDialog):
 
     def ui(self):
         self.box = QtWidgets.QWidget(self)
-        self.box.setGeometry(0, 0, self.width()-10, self.height()-10)
+        self.box.setGeometry(0, 0, self.width()-(6*self.dpi//188), self.height()-(6*self.dpi//188))
 
         grid = QtWidgets.QGridLayout(self.box)
         
         self.Ybtn = QtWidgets.QPushButton(self)
-        self.Ybtn.setText("開始")
         yes_icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton)
         self.Ybtn.setIcon(yes_icon)
-        self.Ybtn.setFont(QtGui.QFont('標楷體', self.font_size))
         self.Ybtn.setStyleSheet(f'''
                            QPushButton{{
                            min-width:{int(((self.box.width()-25)//2)*self.dpi//188)}px;
                            min-height:{self.box.height()}px;
                            }}''')
-        self.Ybtn.setIconSize(self.Ybtn.size() * 5)
+        self.Ybtn.setIconSize(self.Ybtn.size() * 13)
         self.Ybtn.pressed.connect(lambda x="Yes": self.btn_pressed(x))  # 當按鈕"按下"時，所要執行的函式
         self.Ybtn.released.connect(self.accept) # 當按鈕"放開"時，所要執行的函式，其中函式為QDialog提供的方法
         # self.Ybtn.clicked.connect(self.accept)  # QDialog提供的方法
@@ -183,16 +171,14 @@ class YesNoWindow(QtWidgets.QDialog):
         grid.addWidget(self.Ybtn, 0, 0)
 
         self.Nbtn = QtWidgets.QPushButton(self)
-        self.Nbtn.setText("取消")
         no_icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogCancelButton)
         self.Nbtn.setIcon(no_icon)
-        self.Nbtn.setFont(QtGui.QFont('標楷體', self.font_size))
         self.Nbtn.setStyleSheet(f'''
                            QPushButton{{
                            min-width:{int(((self.box.width()-10)//2)*self.dpi//188)}px;
                            min-height:{self.box.height()}px;
                            }}''')
-        self.Nbtn.setIconSize(self.Nbtn.size() * 5)
+        self.Nbtn.setIconSize(self.Nbtn.size() * 13)
         self.Nbtn.pressed.connect(lambda x="No": self.btn_pressed(x))  # 當按鈕"按下"時，所要執行的函式
         self.Nbtn.released.connect(self.reject) # 當按鈕"放開"時，所要執行的函式，其中函式為QDialog提供的方法
         # self.Nbtn.clicked.connect(self.reject)  # QDialog提供的方法
