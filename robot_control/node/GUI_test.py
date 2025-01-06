@@ -98,7 +98,7 @@ class CarMessageWindow(QtWidgets.QDialog):
         # lab_icon.setStyleSheet(f'''QLabel{{border : 2px solid black;}}''')  # 將icon的邊框設成更背景顏色一樣，以便隱藏邊框
         pixmap = QtGui.QPixmap(self.image_path)
         pixmap_size = int(750*self.dpi//188)
-        scaled_pixmap = pixmap.scaled(pixmap_size*1.76552, pixmap_size) #!!!!!!!!
+        scaled_pixmap = pixmap.scaled(int(pixmap_size*1.76552), pixmap_size)  #1.76552是圖片長與寬的比例
         lab_icon.setPixmap(scaled_pixmap)
         lab_icon.setAlignment(QtCore.Qt.AlignCenter)
         mgrid.addWidget(lab_icon, 0, 0)
