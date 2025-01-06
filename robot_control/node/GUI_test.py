@@ -240,17 +240,18 @@ class BtnPush():
     #     # self.pub_goal(goal_name='P4')
     #     print("P4")
 
-    def close(self):
+    def close(self, ask = True):
         window.btn[0][1].setStyleSheet("background-color : lightgray")
-        ret = window.yesno_window.exec_()
-        if ret == QtWidgets.QDialog.Rejected : return
+        if ask : 
+            ret = window.yesno_window.exec_()
+            if ret == QtWidgets.QDialog.Rejected : return
         # time.sleep(1)
         param = '-15'
         enable = False
         while True:
             process = Process.find_process()
             if len(process) <= 1 and enable: break
-            elif enable: param = '-9', print("Closing not completed yet!!!")
+            # elif enable: param = '-9', print("Closing not completed yet!!!")
             Process.close(ros_process=process, kill_param=param)
             time.sleep(1)
             enable = True
@@ -264,18 +265,17 @@ class BtnPush():
         # c.daemon = True
         # r = threading.Thread(target=Process.restart())
         # r.daemon = True
-        # if os.path.exists(script_path):  # 判斷檔案是否存在
-        #     self.close()
-        #     # c.start()
-        #     # Process.restart()
-        #     # c.start()
-        #     # c.join()
-        #     time.sleep(2)
-        #     r = threading.Thread(target=Process.restart())
-        #     r.daemon = True
-        #     r.start()
-        # else :
-        #     print('No such file !!')
+        if os.path.exists(script_path):  # 判斷檔案是否存在
+            self.close(ask=False)
+            # c.start()
+            # Process.restart()
+            # c.start()
+            # c.join()
+            time.sleep(2)
+            r = threading.Thread(target=Process.restart(), daemon=True)
+            r.start()
+        else :
+            print('No such file !!')
         print("reset")
 
     def pub_goal(self, goal_name=''):
