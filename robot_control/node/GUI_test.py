@@ -8,6 +8,9 @@ from forklift_server.msg import TopologyMapActionGoal
 import subprocess, time, os
 from std_msgs.msg import Bool, Float64
 import threading
+# from include_py import creat_navigation_info
+# from .creat_navigation_info import write
+from creat_navigation_info import SaveNavigationInfo
 # from process import Process 
 
 btn_text = [['急診', '結束'], ['藥局', '重啟']]
@@ -265,17 +268,19 @@ class BtnPush():
         # c.daemon = True
         # r = threading.Thread(target=Process.restart())
         # r.daemon = True
-        if os.path.exists(script_path):  # 判斷檔案是否存在
-            self.close(ask=False)
-            # c.start()
-            # Process.restart()
-            # c.start()
-            # c.join()
-            time.sleep(2)
-            r = threading.Thread(target=Process.restart(), daemon=True)
-            r.start()
-        else :
-            print('No such file !!')
+        # if os.path.exists(script_path):  # 判斷檔案是否存在
+        #     self.close(ask=False)
+        #     # c.start()
+        #     # Process.restart()
+        #     # c.start()
+        #     # c.join()
+        #     time.sleep(2)
+        #     r = threading.Thread(target=Process.restart(), daemon=True)
+        #     r.start()
+        # else :
+        #     print('No such file !!')
+        # creat_navigation_info.write()
+        SaveNavigationInfo.write()
         print("reset")
 
     def pub_goal(self, goal_name=''):
