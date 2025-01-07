@@ -80,7 +80,7 @@ class CarMessageWindow(QtWidgets.QDialog):
         rospy.Subscriber("/car_voltage", Float64, self.get_car_power, queue_size=1)
         self.car_power = 0
         self.car_enable = True
-        self.image_path = project_path + "/node/low-battery.png"
+        self.image_path = project_path + "/icon/low-battery.png"
         self.ui()
         # print(f"svodnv  {app.primaryScreen().physicalDotsPerInch()}")
 
