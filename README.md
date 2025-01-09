@@ -17,6 +17,7 @@ $ catkin_make
 $ echo "source ~/gui_ws/devel/setup.bash" >> ~/.bashrc
 $ source ~/.bashrc
 $ chmod +x ~/gui_ws/src/robot_control/Script/restart_script.sh
+$ chmod +x ~/gui_ws/src/robot_control/Script/restart_script2.sh
 ```
 
 ### Install Package
