@@ -6,7 +6,7 @@ import sys
 from PyQt5 import QtWidgets, QtCore, QtGui, QtMultimedia
 from forklift_server.msg import TopologyMapActionGoal
 import subprocess, time, os
-from std_msgs.msg import Bool, Float64
+from std_msgs.msg import Bool, Float64, String
 import threading
 # from include_py import creat_navigation_info
 # from .creat_navigation_info import write
@@ -124,7 +124,7 @@ class CarMessageWindow(QtWidgets.QDialog):
 
     def get_car_power(self, msg):
         self.car_power = msg.data
-        if self.car_power < 29 and self.car_enable:
+        if self.car_power < 23 and self.car_enable:
             # QtCore.QMetaObject.invokeMethod(self, "message_display", QtCore.Qt.QueuedConnection)
             # QtCore.QTimer.singleShot(0, self.message_display)
             # QtCore.QTimer.singleShot(0, lambda text = "沒電":self.message_display(message_text=text))
@@ -192,19 +192,21 @@ class YesNoWindow(QtWidgets.QDialog):
         (self.Ybtn if x == "Yes" else self.Nbtn).setStyleSheet(f"QPushButton{{background-color : yellow;min-width:{int(((self.box.width()-10)//2)*self.dpi//188)}px;min-height:{self.box.height()}px;}}")
 
     def accept(self):
-        """覆寫 accept 方法，設置自定義返回值"""
+        """覆寫 accept 方法"""
         self.Ybtn.setStyleSheet(f"QPushButton{{background-color : lightgray;min-width:{int(((self.box.width()-10)//2)*self.dpi//188)}px;min-height:{self.box.height()}px;}}")
         super().accept()  # 調用父類的 accept，關閉對話框
 
     def reject(self):
-        """覆寫 reject 方法，清除自定義返回值"""
+        """覆寫 reject 方法"""
         self.Nbtn.setStyleSheet(f"QPushButton{{background-color : lightgray;min-width:{int(((self.box.width()-10)//2)*self.dpi//188)}px;min-height:{self.box.height()}px;}}")
         super().reject()  # 調用父類的 reject，關閉對話框
 
 
 class BtnPush():
     def __init__(self):
+        self.navigation_goal=""
         self.pub = rospy.Publisher("/TopologyMap_server/goal", TopologyMapActionGoal, queue_size=1, latch=True)
+        rospy.Subscriber("/NavigationGoalInfo", String, self.echo_navigation_goal, queue_size=1)
 
     def btn_pressed(self, x, y):        # 當按鈕按下時，會根據回傳的x, y值，將所對應的按鈕背景顏色改成黃色
         # print(f"x:{x} y:{y}")
@@ -212,7 +214,7 @@ class BtnPush():
 
     def p1(self):
         window.btn[0][0].setStyleSheet("background-color : lightgray")
-        window.car_msg_window.exec_()
+        # window.car_msg_window.exec_()
         if(window.car_msg_window.car_enable):
             ret = window.yesno_window.exec_()
             if ret == QtWidgets.QDialog.Rejected : return
@@ -229,7 +231,7 @@ class BtnPush():
             ret = window.yesno_window.exec_()
             # print('Yes' if ret == QtWidgets.QDialog.Accepted else "N0")
             if ret == QtWidgets.QDialog.Rejected : return
-            self.pub_goal(goal_name='P6')
+            self.pub_goal(goal_name='P6') #p6
         else :
             window.car_msg_window.exec_()
         # print("P2")
@@ -248,6 +250,7 @@ class BtnPush():
         if ask : 
             ret = window.yesno_window.exec_()
             if ret == QtWidgets.QDialog.Rejected : return
+            else : SaveNavigationInfo.write()
         # time.sleep(1)
         param = '-15'
         enable = False
@@ -264,23 +267,24 @@ class BtnPush():
         window.btn[1][1].setStyleSheet("background-color : lightgray")
         ret = window.yesno_window.exec_()
         if ret == QtWidgets.QDialog.Rejected : return   
+        SaveNavigationInfo.write(program_reset = True, goal_start = self.navigation_goal)
         # c = threading.Thread(target=self.close())
         # c.daemon = True
         # r = threading.Thread(target=Process.restart())
         # r.daemon = True
-        # if os.path.exists(script_path):  # 判斷檔案是否存在
-        #     self.close(ask=False)
-        #     # c.start()
-        #     # Process.restart()
-        #     # c.start()
-        #     # c.join()
-        #     time.sleep(2)
-        #     r = threading.Thread(target=Process.restart(), daemon=True)
-        #     r.start()
-        # else :
-        #     print('No such file !!')
+        if os.path.exists(script_path):  # 判斷檔案是否存在
+            self.close(ask=False)
+            # c.start()
+            time.sleep(2)
+            Process.restart()
+            # c.start()
+            # c.join()
+            # time.sleep(2)
+            # r = threading.Thread(target=Process.restart(), daemon=True)
+            # r.start()
+        else :
+            print('No such file !!')
         # creat_navigation_info.write()
-        SaveNavigationInfo.write()
         print("reset")
 
     def pub_goal(self, goal_name=''):
@@ -288,6 +292,9 @@ class BtnPush():
         goal.goal.goal = goal_name
         # print(goal)
         self.pub.publish(goal)
+
+    def echo_navigation_goal(self, msg):
+        self.navigation_goal = msg.data     # 接收Topology_map傳回來已經到達的導航點
 
 class Process():
     def find_process():
@@ -368,7 +375,6 @@ if __name__ == "__main__":
     window.menu_ui()
     script_path = project_path + "/Script/restart_script.sh"
     music_path = project_path + "/music/Free_Music.mp3"
-    python_path = project_path + "/node/restart_process.py"
     player = NavigationPlayMusic()
     # print(script_path)
     window.show()

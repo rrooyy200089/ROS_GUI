@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 import yaml, os
 
-data = {'reset' : None, 'goal' : None}
+data = {'robot_reset' : None, 'robot_goal' : None}  # reset會儲存是否重新啟動，goal會儲存關閉前到達的導航點
 
 class SaveNavigationInfo():
     def write(program_reset = False, goal_start = "P1"):
         filename = os.path.dirname(__file__) + "/test.yaml"
-        data['reset'] = program_reset
-        data['goal'] = goal_start
+        data['robot_reset'] = program_reset
+        data['robot_goal'] = goal_start
         with open(filename, 'w') as yaml_file:
             yaml.dump(data, yaml_file, default_flow_style=False)
 
