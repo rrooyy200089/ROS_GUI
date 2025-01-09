@@ -11,7 +11,7 @@ sleep 1
 
 while true; do
     # 使用 rostopic echo 抓取 frame_id
-    frame_id=$(rostopic echo -n 1 /tf/transforms[0]/header/frame_id 2>/dev/null | tr -d '"')
+    frame_id=$(rostopic echo -n 10 /tf/transforms[0]/header/frame_id 2>/dev/null | tr -d '"')
 
     # echo -e "$frame_id"
     
@@ -19,9 +19,9 @@ while true; do
     if [[ "$frame_id" == *"map"* ]]; then
         # echo "Frame ID is 'map'. Proceeding to the next steps..."
         break
-    else
+    # else
         # echo "Current Frame ID: $frame_id. Retrying..."
-        sleep 1  # 等待 1 秒後重試
+        # sleep 0.1  # 等待 1 秒後重試
     fi
 done
 
@@ -34,6 +34,8 @@ sleep 1
 gnome-terminal -t "laser scan" --tab -- bash -c 'roslaunch laser_scan_obstacle_detection realsense_laser_scan_obstacle_detection.launch'
 sleep 1
 
-roslaunch robot_control gui.launch
-# gnome-terminal -t "GUI" --tab -- bash -c 'roslaunch robot_control gui.launch'
-sleep 1
+# python3 ~/project/gui_ws/src/robot_control/Script/test.py
+~/project/gui_ws/src/robot_control/Script/restart_script2.sh
+# roslaunch robot_control gui.launch
+# gnome-terminal -t "GUI_PY" --tab -- bash -c '~/project/gui_ws/src/robot_control/Script/test.py'
+# sleep 1
