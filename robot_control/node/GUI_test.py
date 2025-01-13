@@ -80,6 +80,7 @@ class CarMessageWindow(QtWidgets.QDialog):
         rospy.Subscriber("/car_voltage", Float64, self.get_car_power, queue_size=1)
         self.car_power = 0
         self.car_enable = True
+        self.n = 0
         self.image_path = project_path + "/icon/low-battery.png"
         self.ui()
         # print(f"svodnv  {app.primaryScreen().physicalDotsPerInch()}")
@@ -128,8 +129,11 @@ class CarMessageWindow(QtWidgets.QDialog):
             # QtCore.QMetaObject.invokeMethod(self, "message_display", QtCore.Qt.QueuedConnection)
             # QtCore.QTimer.singleShot(0, self.message_display)
             # QtCore.QTimer.singleShot(0, lambda text = "沒電":self.message_display(message_text=text))
-            self.exec_()
-            self.car_enable = False
+            self.n += 1
+            if self.n > 2 :     # 資料連續三筆都小於低電壓的閥值時，則判定車子沒電
+                self.exec_()
+                self.car_enable = False
+        elif self.car_enable and self.n > 0 : self.n = 0
 
     def btn_pressed(self):        # 當按鈕按下時，會將按鈕背景顏色改成黃色
         self.mbtn.setStyleSheet(f"QPushButton{{background-color : yellow;min-height:{int(300*self.dpi//188)}px;}}")
