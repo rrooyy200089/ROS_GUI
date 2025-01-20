@@ -130,7 +130,7 @@ class CarMessageWindow(QtWidgets.QDialog):
             # QtCore.QTimer.singleShot(0, self.message_display)
             # QtCore.QTimer.singleShot(0, lambda text = "沒電":self.message_display(message_text=text))
             self.n += 1
-            if self.n > 2 :     # 資料連續三筆都小於低電壓的閥值時，則判定車子沒電
+            if self.n > 2 :     # 當資料連續三筆都小於低電壓的閥值時，則判定車子沒電
                 self.exec_()
                 self.car_enable = False
         elif self.car_enable and self.n > 0 : self.n = 0

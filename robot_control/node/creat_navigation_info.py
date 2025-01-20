@@ -6,7 +6,7 @@ data = {'robot_reset' : None, 'robot_goal' : None}  # reset會儲存是否重新
 
 class SaveNavigationInfo():
     def write(program_reset = False, goal_start = "P1"):
-        filename = os.path.dirname(__file__) + "/test.yaml"
+        filename = os.path.dirname(__file__) + "/Robot_Navigation_Info.yaml"
         data['robot_reset'] = program_reset
         data['robot_goal'] = goal_start
         with open(filename, 'w') as yaml_file:
