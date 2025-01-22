@@ -208,7 +208,7 @@ class YesNoWindow(QtWidgets.QDialog):
 
 class BtnPush():
     def __init__(self):
-        self.navigation_goal=""
+        self.navigation_goal = rospy.get_param("/TopologyMap_server/start_node", "P1")
         self.pub = rospy.Publisher("/TopologyMap_server/goal", TopologyMapActionGoal, queue_size=1, latch=True)
         rospy.Subscriber("/NavigationGoalInfo", String, self.echo_navigation_goal, queue_size=1)
 
