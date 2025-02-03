@@ -11,6 +11,7 @@ import threading
 # from include_py import creat_navigation_info
 # from .creat_navigation_info import write
 from creat_navigation_info import SaveNavigationInfo
+from robot_control.msg import Navigation_server
 # from process import Process 
 
 btn_text = [['急診', '結束'], ['藥局', '重啟']]
@@ -209,7 +210,8 @@ class YesNoWindow(QtWidgets.QDialog):
 class BtnPush():
     def __init__(self):
         self.navigation_goal = rospy.get_param("/TopologyMap_server/start_node", "P1")
-        self.pub = rospy.Publisher("/TopologyMap_server/goal", TopologyMapActionGoal, queue_size=1, latch=True)
+        # self.pub = rospy.Publisher("/TopologyMap_server/goal", TopologyMapActionGoal, queue_size=1, latch=True)
+        self.pub_test = rospy.Publisher("/GUI_NavigationMsg", Navigation_server, queue_size=1, latch=True)
         rospy.Subscriber("/NavigationGoalInfo", String, self.echo_navigation_goal, queue_size=1)
 
     def btn_pressed(self, x, y):        # 當按鈕按下時，會根據回傳的x, y值，將所對應的按鈕背景顏色改成黃色
@@ -222,7 +224,14 @@ class BtnPush():
         if(window.car_msg_window.car_enable):
             ret = window.yesno_window.exec_()
             if ret == QtWidgets.QDialog.Rejected : return
-            self.pub_goal(goal_name='P11')
+            # self.pub_test.Receive_message(msg=['TopologyMap', 'P11'])
+            # self.pub_test.Receive_message(msg=['PBVS', 'parking_bodycamera'])
+            a = Navigation_server()
+            a.mode = 'PBVS'
+            a.command = 'parking_bodycamera'
+            print(a)
+            self.pub_test.publish(a)
+            # self.pub_goal(goal_name='P11')
         else :
             window.car_msg_window.exec_()
 
@@ -235,7 +244,7 @@ class BtnPush():
             ret = window.yesno_window.exec_()
             # print('Yes' if ret == QtWidgets.QDialog.Accepted else "N0")
             if ret == QtWidgets.QDialog.Rejected : return
-            self.pub_goal(goal_name='P6') #p6
+            # self.pub_goal(goal_name='P6') #p6
         else :
             window.car_msg_window.exec_()
         # print("P2")

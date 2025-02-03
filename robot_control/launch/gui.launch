@@ -1,3 +1,4 @@
 <launch>
     <node name="GUI_node" pkg="robot_control" type="GUI_test.py" output="screen" />
+    <node name="ctrl_server" pkg="robot_control" type="navigation_ctrl_server.py" output="screen" />
 </launch>
