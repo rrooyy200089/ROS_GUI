@@ -211,8 +211,9 @@ class BtnPush():
     def __init__(self):
         self.navigation_goal = rospy.get_param("/TopologyMap_server/start_node", "P1")
         # self.pub = rospy.Publisher("/TopologyMap_server/goal", TopologyMapActionGoal, queue_size=1, latch=True)
-        self.pub_test = rospy.Publisher("/GUI_NavigationMsg", Navigation_server, queue_size=1, latch=True)
+        self.pub = rospy.Publisher("/GUI_NavigationMsg", Navigation_server, queue_size=1, latch=True)
         rospy.Subscriber("/NavigationGoalInfo", String, self.echo_navigation_goal, queue_size=1)
+        self.navigation_ctrl = Navigation_server()
 
     def btn_pressed(self, x, y):        # 當按鈕按下時，會根據回傳的x, y值，將所對應的按鈕背景顏色改成黃色
         # print(f"x:{x} y:{y}")
@@ -224,11 +225,10 @@ class BtnPush():
         if(window.car_msg_window.car_enable):
             ret = window.yesno_window.exec_()
             if ret == QtWidgets.QDialog.Rejected : return
-            navigation_ctrl = Navigation_server()
-            navigation_ctrl.mode = ['TopologyMap', 'PBVS']
-            navigation_ctrl.command = ['P11', 'parking_bodycamera']
-            # print(navigation_ctrl)
-            self.pub_test.publish(navigation_ctrl)
+            self.navigation_ctrl.mode = ['TopologyMap']
+            self.navigation_ctrl.command = ['P11']
+            # print(self.navigation_ctrl)
+            self.pub.publish(self.navigation_ctrl)
             # self.pub_goal(goal_name='P11')
         else :
             window.car_msg_window.exec_()
@@ -242,6 +242,10 @@ class BtnPush():
             ret = window.yesno_window.exec_()
             # print('Yes' if ret == QtWidgets.QDialog.Accepted else "N0")
             if ret == QtWidgets.QDialog.Rejected : return
+            self.navigation_ctrl.mode = ['TopologyMap', 'PBVS']
+            self.navigation_ctrl.command = ['P6', 'parking_bodycamera']
+            # print(self.navigation_ctrl)
+            self.pub.publish(self.navigation_ctrl)
             # self.pub_goal(goal_name='P6') #p6
         else :
             window.car_msg_window.exec_()
@@ -298,11 +302,11 @@ class BtnPush():
         # creat_navigation_info.write()
         print("reset")
 
-    def pub_goal(self, goal_name=''):
-        goal = TopologyMapActionGoal()
-        goal.goal.goal = goal_name
-        # print(goal)
-        self.pub.publish(goal)
+    # def pub_goal(self, goal_name=''):
+    #     goal = TopologyMapActionGoal()
+    #     goal.goal.goal = goal_name
+    #     # print(goal)
+    #     self.pub.publish(goal)
 
     def echo_navigation_goal(self, msg):
         self.navigation_goal = msg.data     # 接收Topology_map傳回來已經到達的導航點
