@@ -224,13 +224,11 @@ class BtnPush():
         if(window.car_msg_window.car_enable):
             ret = window.yesno_window.exec_()
             if ret == QtWidgets.QDialog.Rejected : return
-            # self.pub_test.Receive_message(msg=['TopologyMap', 'P11'])
-            # self.pub_test.Receive_message(msg=['PBVS', 'parking_bodycamera'])
-            a = Navigation_server()
-            a.mode = 'PBVS'
-            a.command = 'parking_bodycamera'
-            print(a)
-            self.pub_test.publish(a)
+            navigation_ctrl = Navigation_server()
+            navigation_ctrl.mode = ['TopologyMap', 'PBVS']
+            navigation_ctrl.command = ['P11', 'parking_bodycamera']
+            # print(navigation_ctrl)
+            self.pub_test.publish(navigation_ctrl)
             # self.pub_goal(goal_name='P11')
         else :
             window.car_msg_window.exec_()

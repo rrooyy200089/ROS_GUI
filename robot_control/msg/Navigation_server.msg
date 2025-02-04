@@ -1,2 +1,2 @@
-string mode
-string command
+string[] mode
+string[] command

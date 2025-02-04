@@ -6,7 +6,6 @@ import forklift_server.msg
 import apriltag_ros.msg
 from robot_control.msg import Navigation_server
 
-
 class Ctrl_Server():
     def __init__(self):
         rospy.Subscriber("/GUI_NavigationMsg", Navigation_server, self.Receive_message, queue_size=1)
@@ -40,21 +39,28 @@ class Ctrl_Server():
 
     def Receive_message(self, msg):
         # print(msg)
-        if(msg.mode == 'PBVS' and msg.command == 'parking_bodycamera'):
-            result = self.AprilTag_client(True)
-            print("AprilTag_client result ", result)
-            result = self.PBVS_client(msg.command)
-            print("PBVS_client result ", result)
-            result = self.AprilTag_client(False)
-            print("AprilTag_client result ", result)
+        try :
+            if(len(msg.mode) != len(msg.command)): raise
+            for i in range(len(msg.mode)):
+                # print(f'{msg.mode[i]} : {msg.command[i]}')
+                if(msg.mode[i] == 'PBVS' and msg.command[i] == 'parking_bodycamera'):
+                    result = self.AprilTag_client(True)
+                    print("AprilTag_client result ", result)
+                    result = self.PBVS_client(msg.command[i])
+                    print("PBVS_client result ", result)
+                    result = self.AprilTag_client(False)
+                    print("AprilTag_client result ", result)
 
-        elif(msg.mode == 'TopologyMap'):
-            rospy.logwarn("send TopologyMap: %s", msg.command)
-            result = self.TopologyMap_client(msg.command)
-            print("TopologyMap result ", result)
+                elif(msg.mode[i] == 'TopologyMap'):
+                    rospy.logwarn("send TopologyMap: %s", msg.command[i])
+                    result = self.TopologyMap_client(msg.command[i])
+                    print("TopologyMap result ", result)
 
-        else :
-            print("error command: ", msg)    
+                else :
+                    raise
+        
+        except :
+            rospy.logwarn("\nerror command:\n%s", msg)  
 
 
 if __name__ == '__main__':
