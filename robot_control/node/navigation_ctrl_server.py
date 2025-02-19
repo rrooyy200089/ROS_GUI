@@ -5,10 +5,12 @@ import actionlib
 import forklift_server.msg
 import apriltag_ros.msg
 from robot_control.msg import Navigation_server
+from std_msgs.msg import Bool
 
 class Ctrl_Server():
     def __init__(self):
         rospy.Subscriber("/GUI_NavigationMsg", Navigation_server, self.Receive_message, queue_size=1)
+        self.music_state_pub = rospy.Publisher('/MusicState', Bool, queue_size=1, latch=True)
 
     def PBVS_client(self, msg):
         client = actionlib.SimpleActionClient('PBVS_server', forklift_server.msg.PBVSAction)
@@ -41,6 +43,7 @@ class Ctrl_Server():
         # print(msg)
         try :
             if(len(msg.mode) != len(msg.command)): raise
+            self.music_state_pub.publish(True)
             for i in range(len(msg.mode)):
                 # print(f'{msg.mode[i]} : {msg.command[i]}')
                 if(msg.mode[i] == 'PBVS' and msg.command[i] == 'parking_bodycamera'):
@@ -58,6 +61,8 @@ class Ctrl_Server():
 
                 else :
                     raise
+
+            self.music_state_pub.publish(False)
         
         except :
             rospy.logwarn("\nerror command:\n%s", msg)  
