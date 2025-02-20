@@ -28,7 +28,7 @@ while true; do
     fi
 done
 
-~/project/gui_ws/src/robot_control/Script/restart_script2.sh
+~/project/gui_ws/src/robot_control/Script/restart_script_stage_2.sh
 
 # gnome-terminal -t "move_base" --tab -- bash -c 'roslaunch car_controller Meteor_navigation_3DLiDAR.launch'
 # sleep 1

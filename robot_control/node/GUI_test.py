@@ -12,10 +12,12 @@ import threading
 # from .creat_navigation_info import write
 from creat_navigation_info import SaveNavigationInfo
 from robot_control.msg import Navigation_server
+import actionlib
+from move_base_msgs.msg import MoveBaseAction
 # from process import Process 
 
 btn_text = [['急診', '結束'], ['藥局', '重啟']]
-closing_order = ['laser', 'TopologyMap', 'navigation', 'CeilingSLAMwithZED2', 'ZED', 'driver', 'gui']  # 設定關閉順序
+closing_order = ['laser', 'TopologyMap', 'navigation', 'CeilingSLAMwithZED2', 'PBVS', 'continuous', 'ZED', 'D435', 'driver', 'gui']  # 設定關閉順序
 
 class MainWindow(QtWidgets.QWidget):
     def __init__(self):
@@ -213,7 +215,9 @@ class BtnPush():
         # self.pub = rospy.Publisher("/TopologyMap_server/goal", TopologyMapActionGoal, queue_size=1, latch=True)
         self.pub = rospy.Publisher("/GUI_NavigationMsg", Navigation_server, queue_size=1, latch=True)
         rospy.Subscriber("/NavigationGoalInfo", String, self.echo_navigation_goal, queue_size=1)
+        self.navigation_state_pub = rospy.Publisher('/NavigationState', Bool, queue_size=1, latch=True)
         self.navigation_ctrl = Navigation_server()
+        self.navigation_client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
 
     def btn_pressed(self, x, y):        # 當按鈕按下時，會根據回傳的x, y值，將所對應的按鈕背景顏色改成黃色
         # print(f"x:{x} y:{y}")
@@ -244,6 +248,8 @@ class BtnPush():
             if ret == QtWidgets.QDialog.Rejected : return
             self.navigation_ctrl.mode = ['TopologyMap', 'PBVS']
             self.navigation_ctrl.command = ['P6', 'parking_bodycamera']
+            # self.navigation_ctrl.mode = ['TopologyMap']
+            # self.navigation_ctrl.command = ['P6']
             # print(self.navigation_ctrl)
             self.pub.publish(self.navigation_ctrl)
             # self.pub_goal(goal_name='P6') #p6
@@ -288,6 +294,8 @@ class BtnPush():
         # r = threading.Thread(target=Process.restart())
         # r.daemon = True
         if os.path.exists(script_path):  # 判斷檔案是否存在
+            self.navigation_client.cancel_goal()    #取消當前導航
+            self.navigation_state_pub(False)
             self.close(ask=False)
             # c.start()
             time.sleep(2)
@@ -365,7 +373,7 @@ class NavigationPlayMusic():
         self.playerlist.addMedia(qmusic)
         self.playerlist.setPlaybackMode(QtMultimedia.QMediaPlaylist.Loop)
         self.player.setPlaylist(self.playerlist)
-        self.navigation_state_sub = rospy.Subscriber('/NavigationState', Bool, self.navigation_state, queue_size=1)
+        rospy.Subscriber('/MusicState', Bool, self.music_state, queue_size=1)
 
     def play_music(self):
         self.player.play()
@@ -373,7 +381,7 @@ class NavigationPlayMusic():
     def stop_music(self):
         self.player.stop()
 
-    def navigation_state(self, msg):
+    def music_state(self, msg):
         if msg.data :
             self.play_music()
 
@@ -388,7 +396,7 @@ if __name__ == "__main__":
     Btn = BtnPush()
     btn_function = {btn_text[0][0]:Btn.p1, btn_text[1][0]:Btn.p2, btn_text[0][1]:Btn.close, btn_text[1][1]:Btn.reset}
     window.menu_ui()
-    script_path = project_path + "/Script/restart_script.sh"
+    script_path = project_path + "/Script/restart_script_stage_1.sh"
     music_path = project_path + "/music/Free_Music.mp3"
     player = NavigationPlayMusic()
     # print(script_path)

@@ -32,7 +32,7 @@ gnome-terminal -t "Topology map" --tab -- bash -c 'roslaunch ~/Launch/TopologyMa
 sleep 1
 
 gnome-terminal -t "laser scan" --tab -- bash -c 'roslaunch laser_scan_obstacle_detection realsense_laser_scan_obstacle_detection.launch'
-sleep 1
+sleep 2
 
 gnome-terminal -t "apriltag detection" --tab -- bash -c 'roslaunch apriltag_ros continuous_detection_4WDD.launch'
 sleep 1
