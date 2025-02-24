@@ -16,7 +16,7 @@ import actionlib
 from move_base_msgs.msg import MoveBaseAction
 # from process import Process 
 
-btn_text = [['急診', '結束'], ['藥局', '重啟']]
+btn_text = [['急診', '放射'], ['藥局', '結束']]
 closing_order = ['laser', 'TopologyMap', 'navigation', 'CeilingSLAMwithZED2', 'PBVS', 'continuous', 'ZED', 'D435', 'driver', 'gui']  # 設定關閉順序
 
 class MainWindow(QtWidgets.QWidget):
@@ -223,7 +223,7 @@ class BtnPush():
         # print(f"x:{x} y:{y}")
         window.btn[x][y].setStyleSheet("background-color : yellow")
 
-    def p1(self):
+    def p1(self):   # 急診
         window.btn[0][0].setStyleSheet("background-color : lightgray")
         # window.car_msg_window.exec_()
         if(window.car_msg_window.car_enable):
@@ -233,14 +233,29 @@ class BtnPush():
             self.navigation_ctrl.command = ['P11']
             # print(self.navigation_ctrl)
             self.pub.publish(self.navigation_ctrl)
-            # self.pub_goal(goal_name='P11')
+            # print("急診")
         else :
             window.car_msg_window.exec_()
 
         # print("P1")
         # player.play_music()
     
-    def p2(self):
+    def p2(self):   # 放射
+        window.btn[0][1].setStyleSheet("background-color : lightgray")
+        if(window.car_msg_window.car_enable):
+            ret = window.yesno_window.exec_()
+            if ret == QtWidgets.QDialog.Rejected : return
+            # self.navigation_ctrl.mode = ['TopologyMap', 'PBVS']
+            # self.navigation_ctrl.command = ['P6', 'parking_bodycamera']
+            # print(self.navigation_ctrl)
+            # self.pub.publish(self.navigation_ctrl)
+            print("放射")
+        else :
+            window.car_msg_window.exec_()
+        # print("P2")
+        # player.stop_music()
+
+    def p3(self):   # 藥局
         window.btn[1][0].setStyleSheet("background-color : lightgray")
         if(window.car_msg_window.car_enable):
             ret = window.yesno_window.exec_()
@@ -252,19 +267,9 @@ class BtnPush():
             # self.navigation_ctrl.command = ['P6']
             # print(self.navigation_ctrl)
             self.pub.publish(self.navigation_ctrl)
-            # self.pub_goal(goal_name='P6') #p6
+            # print("藥局")
         else :
             window.car_msg_window.exec_()
-        # print("P2")
-        # player.stop_music()
-
-    # def p3(self):
-    #     self.pub_goal(goal_name='P6')
-    #     # print("P3")
-
-    # def p4(self):
-    #     # self.pub_goal(goal_name='P4')
-    #     print("P4")
 
     def close(self, ask = True):
         window.btn[0][1].setStyleSheet("background-color : lightgray")
@@ -285,9 +290,9 @@ class BtnPush():
         print("close")
 
     def reset(self):
-        window.btn[1][1].setStyleSheet("background-color : lightgray")
-        ret = window.yesno_window.exec_()
-        if ret == QtWidgets.QDialog.Rejected : return   
+        # window.btn[1][1].setStyleSheet("background-color : lightgray")
+        # ret = window.yesno_window.exec_()
+        # if ret == QtWidgets.QDialog.Rejected : return   
         SaveNavigationInfo.write(program_reset = True, goal_start = self.navigation_goal)
         # c = threading.Thread(target=self.close())
         # c.daemon = True
@@ -394,7 +399,7 @@ if __name__ == "__main__":
     project_path = os.path.dirname(os.path.dirname(__file__))
     window = MainWindow()
     Btn = BtnPush()
-    btn_function = {btn_text[0][0]:Btn.p1, btn_text[1][0]:Btn.p2, btn_text[0][1]:Btn.close, btn_text[1][1]:Btn.reset}
+    btn_function = {btn_text[0][0]:Btn.p1, btn_text[0][1]:Btn.p2, btn_text[1][0]:Btn.p3, btn_text[1][1]:Btn.close}
     window.menu_ui()
     script_path = project_path + "/Script/restart_script_stage_1.sh"
     music_path = project_path + "/music/Free_Music.mp3"
