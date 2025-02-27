@@ -236,8 +236,6 @@ class BtnPush():
             # print("急診")
         else :
             window.car_msg_window.exec_()
-
-        # print("P1")
         # player.play_music()
     
     def p2(self):   # 放射
@@ -252,7 +250,6 @@ class BtnPush():
             print("放射")
         else :
             window.car_msg_window.exec_()
-        # print("P2")
         # player.stop_music()
 
     def p3(self):   # 藥局
@@ -271,12 +268,11 @@ class BtnPush():
         else :
             window.car_msg_window.exec_()
 
-    def close(self, ask = True):
-        window.btn[0][1].setStyleSheet("background-color : lightgray")
-        if ask : 
-            ret = window.yesno_window.exec_()
-            if ret == QtWidgets.QDialog.Rejected : return
-            else : SaveNavigationInfo.write()
+    def close(self):
+        window.btn[1][1].setStyleSheet("background-color : lightgray")
+        ret = window.yesno_window.exec_()
+        if ret == QtWidgets.QDialog.Rejected : return
+        else : SaveNavigationInfo.write()
         # time.sleep(1)
         param = '-15'
         enable = False
@@ -352,22 +348,9 @@ class Process():
     def restart():
         # print(script_path)
         try:
-            # 使用 subprocess.run 執行指令
-            # result = subprocess.run(script_path, shell=True, capture_output=True, text=True)
             subprocess.Popen([script_path])
-            # subprocess.Popen([sys.executable, python_path])
-
-            
-            # 判斷是否執行成功
-            # if result.returncode == 0:
-            #     print("Command executed successfully.")
-            #     print(f"Output:\n{result.stdout}")  # 輸出結果
-            # else:
-            #     print("Command failed with return code:", result.returncode)
-            #     print(f"Error message:\n{result.stderr}")   # 錯誤訊息
         except Exception as e:
             print("An error occurred while running the command:", e)
-        # pass
 
 class NavigationPlayMusic():
     def __init__(self):
