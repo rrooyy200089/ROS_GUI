@@ -119,7 +119,7 @@ class PasswordCheckApp(QtWidgets.QWidget):
         self.setWindowFlags(Qt.FramelessWindowHint) 
         # self.setWindowTitle("密碼輸入")
         self.setFixedSize(display_width, display_height)
-        self.move((self.screen.width()-display_width)//2, (self.screen.height()-display_height)//2)
+        self.move((self.screen.width()-display_width)//2, (self.screen.height()-display_height)//2) # 將視窗移到畫面中間
         # self.show()
 
     def btn_pressed(self, key):
