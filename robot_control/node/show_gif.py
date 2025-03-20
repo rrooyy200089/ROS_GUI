@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 import sys, os
-from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
+from PyQt5 import QtWidgets
 from PyQt5.QtGui import QMovie
 from PyQt5.QtCore import Qt, QSize
 from password import PasswordCheckApp
 
-class FullscreenGIF(QWidget):
+class FullscreenGIF(QtWidgets.QWidget):
     def __init__(self, project_path):
         super().__init__()
         self.password_gui = PasswordCheckApp(app.primaryScreen().availableGeometry(), app.primaryScreen().physicalDotsPerInch(), project_path)
@@ -14,9 +14,9 @@ class FullscreenGIF(QWidget):
         self.initUI()
     
     def initUI(self):
-        layout = QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         
-        self.label = QLabel(self)
+        self.label = QtWidgets.QLabel(self)
         self.label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.label)
         
@@ -28,7 +28,7 @@ class FullscreenGIF(QWidget):
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.showFullScreen()
         
-        screen_size = QApplication.primaryScreen().size()
+        screen_size = QtWidgets.QApplication.primaryScreen().size()
         self.movie.setScaledSize(QSize(screen_size.width(), screen_size.height()))
         
         self.movie.start()
@@ -51,7 +51,7 @@ class FullscreenGIF(QWidget):
         self.password_gui.init_content() # reset內容
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     path = "/home/ericlai/project/gui_ws/src/robot_control"
     player = FullscreenGIF(path)
     player.show()
