@@ -7,7 +7,6 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from time import sleep
 
 class PasswordCheckApp(QtWidgets.QDialog):
-    closed = pyqtSignal()   # 建立signal,讓外部程式可以接收到關閉事件
     def __init__(self, screen_size, screen_dpi, project_path):
         super().__init__()
         self.correct_password = "1234"  # 設定正確的密碼
@@ -241,11 +240,6 @@ class PasswordCheckApp(QtWidgets.QDialog):
         self.entered_password = ""
         self.update_display()
         self.hint_label.setText("")
-
-
-    def closeEvent(self, event): # 發送關閉事件
-        self.closed.emit()
-        super().closeEvent(event)
         
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
