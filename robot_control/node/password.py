@@ -6,7 +6,7 @@ from PyQt5.QtGui import QFont, QIcon, QPixmap
 from PyQt5.QtCore import Qt, pyqtSignal
 from time import sleep
 
-class PasswordCheckApp(QtWidgets.QWidget):
+class PasswordCheckApp(QtWidgets.QDialog):
     closed = pyqtSignal()   # 建立signal,讓外部程式可以接收到關閉事件
     def __init__(self, screen_size, screen_dpi, project_path):
         super().__init__()
@@ -235,6 +235,12 @@ class PasswordCheckApp(QtWidgets.QWidget):
             sleep(0.2)
             self.entered_password = ""
             self.update_display()
+
+    def init_content(self):
+        self.entered_password = ""
+        self.update_display()
+        self.hint_label.setText("")
+
 
     def closeEvent(self, event): # 發送關閉事件
         self.closed.emit()

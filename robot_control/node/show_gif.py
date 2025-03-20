@@ -42,11 +42,13 @@ class FullscreenGIF(QWidget):
     def mousePressEvent(self, even): # 當觸碰畫面時執行
         # self.close()
         self.password_gui.access = False
-        self.password_gui.show()
+        self.password_gui.exec_()
 
     def PasswordCloseEven(self): # 當密碼鎖的gui關閉時執行
         if self.password_gui.access: # 如果密碼輸入正確就關閉螢幕保護視窗
             self.close()
+        
+        self.password_gui.init_content() # reset內容
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
