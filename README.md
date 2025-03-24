@@ -10,20 +10,20 @@ PyQt5 Version: 5.14.1
 
 ### Install Project
 ```
-$ mkdir ~/gui_ws
-$ cd ~/gui_ws
-$ git clone https://github.com/rrooyy200089/ROS_GUI.git src
-$ catkin_make
-$ echo "source ~/gui_ws/devel/setup.bash" >> ~/.bashrc
-$ source ~/.bashrc
-$ chmod +x ~/gui_ws/src/robot_control/Script/restart_script.sh
-$ chmod +x ~/gui_ws/src/robot_control/Script/restart_script2.sh
+mkdir ~/gui_ws
+cd ~/gui_ws
+git clone https://github.com/rrooyy200089/ROS_GUI.git src
+catkin_make
+echo "source ~/gui_ws/devel/setup.bash" >> ~/.bashrc
+source ~/.bashrc
+chmod +x ~/gui_ws/src/robot_control/Script/restart_script.sh
+chmod +x ~/gui_ws/src/robot_control/Script/restart_script2.sh
 ```
 
 ### Install Package
 ```
-$ sudo apt-get install python3-pyqt5.qtmultimedia
-$ sudo apt-get install libqt5multimedia5-plugins
+sudo apt-get install python3-pyqt5.qtmultimedia
+sudo apt-get install libqt5multimedia5-plugins
 ```
 
 ### Install Fonts
@@ -31,4 +31,14 @@ $ sudo apt-get install libqt5multimedia5-plugins
 sudo cp ~/gui_ws/src/robot_control/fonts/kaiu.ttf /usr/share/fonts/truetype/
 sudo mkfontdir /usr/share/fonts/truetype/
 sudo fc-cache -fv
+```
+
+### Setting Environment (for automatic start)
+```
+mkdir -p ~/.config/systemd/user
+cp ~/gui_ws/src/robot_control/auto_start_file/ros_project_startup.service ~/gui_ws/src/robot_control/auto_start_file/after-resume.target ~/.config/systemd/user/
+sudo cp ~/gui_ws/src/robot_control/auto_start_file/resume_trigger.sh /lib/systemd/system-sleep/
+sudo chmod +x /lib/systemd/system-sleep/resume_trigger.sh
+systemctl --user daemon-reload
+systemctl --user enable ros_project_startup.service
 ```

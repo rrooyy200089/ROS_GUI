@@ -1,0 +1,18 @@
+[Unit]
+Description=ROS Startup Service
+#After=graphical-session.target
+After=suspend.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/roy/
+Environment="DISPLAY=:0"
+Environment="XAUTHORITY=/home/roy/.Xauthority"
+ExecStart=/usr/bin/bash -ic "/home/roy/test.sh"
+Restart=on-failure
+RestartSec=5
+
+[Install]
+#WantedBy=default.target
+WantedBy=after-resume.target
+
