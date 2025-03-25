@@ -41,10 +41,12 @@ class PasswordCheckApp(QtWidgets.QDialog):
 
         # 狀態
         self.state_label = QtWidgets.QLabel()
-        pixmap = QPixmap(self.project_path + "/icon/lock.png")  # 載入鎖上的圖片
         self.picture_size = 170 * self.dpi // 141
-        scaled_pixmap = pixmap.scaled(self.picture_size, self.picture_size, aspectRatioMode=Qt.KeepAspectRatio) # 調整圖片尺寸
-        self.state_label.setPixmap(scaled_pixmap)
+        lock_pixmap = QPixmap(self.project_path + "/icon/lock.png") # 載入鎖上的圖片
+        unlock_pixmap = QPixmap(self.project_path + "/icon/unlock.png")  # 載入解鎖的圖片
+        self.scaled_lock_pixmap = lock_pixmap.scaled(self.picture_size, self.picture_size, aspectRatioMode=Qt.KeepAspectRatio) # 調整圖片尺寸
+        self.scaled_unlock_pixmap = unlock_pixmap.scaled(self.picture_size, self.picture_size, aspectRatioMode=Qt.KeepAspectRatio) # 調整圖片尺寸
+        self.state_label.setPixmap(self.scaled_lock_pixmap)
         self.state_label.setAlignment(Qt.AlignCenter)
         # self.state_label.setStyleSheet("""
         #     QLabel {
@@ -199,7 +201,7 @@ class PasswordCheckApp(QtWidgets.QDialog):
                 border: none;
             }}""")
         self.btn[10].repaint()
-        sleep(0.5)
+        sleep(0.1)
         self.close()
     
     def delete_digit(self):
@@ -223,9 +225,7 @@ class PasswordCheckApp(QtWidgets.QDialog):
     
     def check_password(self):
         if self.entered_password == self.correct_password:
-            pixmap = QPixmap(self.project_path + "/icon/unlock.png")  # 載入解鎖的圖片
-            scaled_pixmap = pixmap.scaled(self.picture_size, self.picture_size, aspectRatioMode=Qt.KeepAspectRatio)
-            self.state_label.setPixmap(scaled_pixmap)
+            self.state_label.setPixmap(self.scaled_unlock_pixmap)
             self.state_label.repaint()
             self.access = True
             sleep(0.6)
@@ -239,6 +239,7 @@ class PasswordCheckApp(QtWidgets.QDialog):
     def init_content(self):
         self.entered_password = ""
         self.update_display()
+        self.state_label.setPixmap(self.scaled_lock_pixmap)
         self.hint_label.setText("")
         
 if __name__ == '__main__':

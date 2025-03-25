@@ -14,6 +14,7 @@ from creat_navigation_info import SaveNavigationInfo
 from robot_control.msg import Navigation_server
 import actionlib
 from move_base_msgs.msg import MoveBaseAction
+from show_gif import FullscreenGIF
 # from process import Process 
 
 btn_text = [['急診', '放射'], ['藥局', '結束']]
@@ -25,6 +26,7 @@ class MainWindow(QtWidgets.QWidget):
         # self.form_event = QtWidgets.QMainWindow()
         self.setWindowTitle("Robot Control Interface")
         self.screen = app.primaryScreen().availableGeometry() # 得到畫面可以顯示範圍
+        self.dpi = int(app.primaryScreen().physicalDotsPerInch())   # 得到畫面的dpi
         print("Screen width:", self.screen.width(), "Screen height:", self.screen.height())
         self.resize(self.screen.width(), self.screen.height())
         # self.showMaximized()
@@ -32,7 +34,10 @@ class MainWindow(QtWidgets.QWidget):
         # self.setWindowState(self.WindowMaximized)
         self.car_msg_window = CarMessageWindow()
         self.yesno_window = YesNoWindow()
+        self.gif_gui = FullscreenGIF(self, self.screen, self.dpi, project_path)
         self.btn = [[None] * 3 for _ in range(2)]
+        self.inactivity_timer = QtCore.QTimer(self)
+        self.inactivity_timer.setInterval(10000)
 
     def menu_ui(self):
         self.box = QtWidgets.QWidget(self)
@@ -60,11 +65,20 @@ class MainWindow(QtWidgets.QWidget):
                 self.btn[i][j].released.connect(btn_function[btn_text[i][j]]) # 當按鈕"放開"時，所要執行的函式
                 self.grid.addWidget(self.btn[i][j], i, j, QtCore.Qt.AlignCenter)
 
-    # def show(self):
-    #     self.show()
+        self.inactivity_timer.timeout.connect(self.screensaver)
+        self.installEventFilter(self)
 
-    # def closeEvent(self, self.form.event):
-        # pass
+    def screensaver(self):
+        self.inactivity_timer.stop()
+        self.gif_gui.showGIF()
+
+    def eventFilter(self, source, event):
+        if event.type() == QtCore.QEvent.Paint:
+            self.inactivity_timer.start()
+        return super().eventFilter(source, event)
+    
+    def resume_timer(self):
+        self.inactivity_timer.start()
 
 class CarMessageWindow(QtWidgets.QDialog):
     def __init__(self):
@@ -247,6 +261,7 @@ class BtnPush():
             # self.navigation_ctrl.command = ['P6', 'parking_bodycamera']
             # print(self.navigation_ctrl)
             # self.pub.publish(self.navigation_ctrl)
+            # window.gif_gui.showGIF()
             print("放射")
         else :
             window.car_msg_window.exec_()
@@ -389,7 +404,5 @@ if __name__ == "__main__":
     player = NavigationPlayMusic()
     # print(script_path)
     window.show()
+    window.inactivity_timer.start()
     sys.exit(app.exec_())
-    # while app.exec_(): pass
-    # rospy.signal_shutdown("GUI is shutdown")          
-    # sys.exit()

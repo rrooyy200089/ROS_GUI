@@ -6,9 +6,9 @@ from PyQt5.QtCore import Qt, QSize
 from password import PasswordCheckApp
 
 class FullscreenGIF(QtWidgets.QWidget):
-    def __init__(self, project_path):
-        super().__init__()
-        self.password_gui = PasswordCheckApp(app.primaryScreen().availableGeometry(), app.primaryScreen().physicalDotsPerInch(), project_path)
+    def __init__(self, parent, screen_size, screen_dpi, project_path):
+        super().__init__(parent)
+        self.password_gui = PasswordCheckApp(screen_size, screen_dpi, project_path)
         self.gif_path = project_path + "/screen_image/1742019751952.gif"  # GIF 檔案路徑
         self.initUI()
     
@@ -24,13 +24,14 @@ class FullscreenGIF(QtWidgets.QWidget):
         self.movie = QMovie(self.gif_path)
         self.label.setMovie(self.movie)
         
-        self.setWindowFlags(Qt.FramelessWindowHint)
-        self.showFullScreen()
+        # self.setWindowFlags(Qt.FramelessWindowHint)
+        self.setWindowFlags(Qt.SplashScreen)
+        # self.showFullScreen()
         
         screen_size = QtWidgets.QApplication.primaryScreen().size()
         self.movie.setScaledSize(QSize(screen_size.width(), screen_size.height()))
         
-        self.movie.start()
+        # self.movie.start()
         
         self.setStyleSheet("background-color: black;")
         
@@ -43,11 +44,20 @@ class FullscreenGIF(QtWidgets.QWidget):
         self.password_gui.exec_()
         if self.password_gui.access: # 如果密碼輸入正確就關閉螢幕保護視窗
             self.close()
+            self.parent().resume_timer()
         self.password_gui.init_content() # reset內容
+
+    def showGIF(self):
+        self.showFullScreen()   # 全螢幕
+        self.movie.start()      # GIF開始動
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
+    size = app.primaryScreen().availableGeometry()  # 得到畫面可以顯示的範圍
+    dpi = int(app.primaryScreen().physicalDotsPerInch())    # 得到畫面的dpi
     path = "/home/ericlai/project/gui_ws/src/robot_control"
-    player = FullscreenGIF(path)
-    player.show()
+    player = FullscreenGIF(size, dpi, path)
+    # player.movie.start()
+    # player.showFullScreen()
+    player.showGIF()
     sys.exit(app.exec_())
