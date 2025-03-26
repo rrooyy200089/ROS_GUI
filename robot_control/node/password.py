@@ -3,7 +3,7 @@
 import sys, os
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QFont, QIcon, QPixmap
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, QTimer
 from time import sleep
 
 class PasswordCheckApp(QtWidgets.QDialog):
@@ -16,6 +16,8 @@ class PasswordCheckApp(QtWidgets.QDialog):
         self.screen = screen_size
         self.dpi = screen_dpi
         self.access = False # 是否解鎖
+        self.timer = QTimer(self)   # 設定顯示"Error"文字的時間
+        self.timer.setInterval(5000)    # 5秒
         self.initUI()
     
     def initUI(self):
@@ -52,7 +54,7 @@ class PasswordCheckApp(QtWidgets.QDialog):
         # 輸入顯示("●" or "○")
         self.password_label = QtWidgets.QLabel()
         self.password_label.setAlignment(Qt.AlignCenter)
-        self.password_label.setFont(QFont("Arial", 90*self.dpi//141))
+        self.password_label.setFont(QFont("Times New Roman", 90*self.dpi//141))
         # self.password_label.setStyleSheet("""
         #     QLabel {
         #         border: 2px solid black;
@@ -134,6 +136,7 @@ class PasswordCheckApp(QtWidgets.QDialog):
         # self.setWindowTitle("密碼輸入")
         self.setFixedSize(display_width, display_height)
         self.move((self.screen.width()-display_width)//2, (self.screen.height()-display_height)//2) # 將視窗移到畫面中間
+        self.timer.timeout.connect(self.recover_display)
         # self.show()
 
     def btn_pressed(self, key):
@@ -191,29 +194,37 @@ class PasswordCheckApp(QtWidgets.QDialog):
         self.update_display()
     
     def update_display(self):
+        if self.timer.isActive() : self.timer.stop()
         password_label_text = ""
         for i in range(4):
             password_label_text += "●" if i < len(self.entered_password) else "○"
             password_label_text += "     " if i < 3 else ""
         # self.label.setText("●" * len(self.entered_password) + "○" * (4 - len(self.entered_password)))
+        self.password_label.setStyleSheet("""color:black;""")
         self.password_label.setText(password_label_text)
         self.password_label.repaint() # 強制立即更新
     
     def check_password(self):
         if self.entered_password == self.correct_password:
             self.state_label.setPixmap(self.scaled_unlock_pixmap)
-            self.password_label.setText("Pass！")
+            self.password_label.setText("P a s s ！")
+            self.password_label.setStyleSheet("""color:green;""")
             self.state_label.repaint()
             self.password_label.repaint()
             self.access = True
             sleep(0.6)
             self.close()
         else:
-            self.password_label.setText("Error！")
+            self.password_label.setText("E r r o r ！")
+            self.password_label.setStyleSheet("""color:red;""")
             self.password_label.repaint()
             # sleep(0.2)
             self.entered_password = ""
+            self.timer.start()  # 開始計時5秒
             # self.update_display()
+
+    def recover_display(self):
+        self.update_display()
 
     def init_content(self):
         self.entered_password = ""
