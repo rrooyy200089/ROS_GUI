@@ -17,12 +17,12 @@ class PasswordCheckApp(QtWidgets.QDialog):
         self.dpi = screen_dpi
         self.access = False # 是否解鎖
         self.timer = QTimer(self)   # 設定顯示"Error"文字的時間
-        self.timer.setInterval(5000)    # 5秒
+        self.timer.setInterval(3000)    # 3秒
         self.initUI()
     
     def initUI(self):
-        display_width, display_height = int(self.screen.height()*1.5), int(self.screen.height()-50)
-        self.display_button_width_size = int(display_width / 4.1)
+        display_width, display_height = int(self.screen.height()*1.5), int(self.screen.height()-50*self.dpi//141)
+        self.display_button_width_size = int(display_width / 4.2)
 
         # 設定成垂直顯示
         main_layout = QtWidgets.QVBoxLayout()
@@ -40,15 +40,12 @@ class PasswordCheckApp(QtWidgets.QDialog):
         self.state_label.setPixmap(self.scaled_lock_pixmap)
         self.state_label.setAlignment(Qt.AlignCenter)
         self.state_label.setFixedSize((400*self.dpi//141), (250*self.dpi//141))
-        # self.state_label.setFixedHeight(180 * self.dpi // 141)
-        # self.state_label.setFixedWidth(300 * self.dpi // 141)
         # self.state_label.setStyleSheet("""
         #     QLabel {
         #         border: 2px solid black;
         #         padding: 5px;
         #     }
         # """) # 顯示邊框
-        # self.label.setScaledContents(True)
         level_main_layout.addWidget(self.state_label)
         
         # 輸入顯示("●" or "○")
@@ -91,41 +88,41 @@ class PasswordCheckApp(QtWidgets.QDialog):
                 QPushButton {{
                     border: 2px solid black;
                     background-color: white;
-                    font-size: {int(self.display_button_width_size//1.5)}px;
+                    font-size: {int(self.display_button_width_size//1.7)}px;
                 }}
             """)
             self.btn[i].pressed.connect(lambda key=i : self.btn_pressed(key))
             self.btn[i].released.connect(lambda n=num, key=i : self.add_digit(n, key))
             grid_layout.addWidget(self.btn[i], i // 4, i % 4)
 
-        # 返回鍵
+        # 刪除鍵
         self.btn[10] = QtWidgets.QPushButton() 
         self.btn[10].setFixedWidth(self.display_button_width_size)
         self.btn[10].setStyleSheet(f"""
             QPushButton {{
-                background-color: transparent;
-                border: none;
+                border: 2px solid black;
+                background-color: white;
             }}""")
-        icon = QIcon(QPixmap(self.project_path + "/icon/back-arrow.png"))
+        icon = QIcon(QPixmap(self.project_path + "/icon/backspace.png"))
         self.btn[10].setIcon(icon)
-        self.btn[10].setIconSize(self.btn[10].size()*0.7)
+        self.btn[10].setIconSize(self.btn[10].size()*0.6)
         self.btn[10].pressed.connect(lambda key=10 : self.btn_pressed(key))
-        self.btn[10].released.connect(self.back)
+        self.btn[10].released.connect(self.delete_digit)
         grid_layout.addWidget(self.btn[10], 2, 2)
         
-        # 刪除鍵
+        # 返回鍵
         self.btn[11] = QtWidgets.QPushButton() 
         self.btn[11].setFixedWidth(self.display_button_width_size)
         self.btn[11].setStyleSheet(f"""
             QPushButton {{
-                background-color: transparent;
-                border: none;
+                border: 2px solid black;
+                background-color: white;
             }}""")
-        icon = QIcon(QPixmap(self.project_path + "/icon/backspace.png"))
+        icon = QIcon(QPixmap(self.project_path + "/icon/back-arrow.png"))
         self.btn[11].setIcon(icon)
-        self.btn[11].setIconSize(self.btn[11].size()*0.7)
+        self.btn[11].setIconSize(self.btn[11].size()*0.6)
         self.btn[11].pressed.connect(lambda key=11 : self.btn_pressed(key))
-        self.btn[11].released.connect(self.delete_digit)
+        self.btn[11].released.connect(self.back)
         grid_layout.addWidget(self.btn[11], 2, 3)        
 
         main_layout.addLayout(grid_layout)
@@ -140,22 +137,13 @@ class PasswordCheckApp(QtWidgets.QDialog):
         # self.show()
 
     def btn_pressed(self, key):
-        if key < 10:
-            self.btn[key].setStyleSheet(f"""
-                    QPushButton {{
-                        border: 2px solid black;
-                        background-color: yellow;
-                        font-size: {int(self.display_button_width_size//1.5)}px;
-                    }}
-                """)
-        
-        else :
-            self.btn[key].setStyleSheet(f"""
+        self.btn[key].setStyleSheet(f"""
                 QPushButton {{
+                    border: 2px solid black;
                     background-color: yellow;
-                    border: none;
-                }}""")
-            
+                    font-size: {int(self.display_button_width_size//1.7)}px;
+                }}
+            """)          
         self.btn[key].repaint()
         sleep(0.1)
     
@@ -164,7 +152,7 @@ class PasswordCheckApp(QtWidgets.QDialog):
                 QPushButton {{
                     border: 2px solid black;
                     background-color: white;
-                    font-size: {int(self.display_button_width_size//1.5)}px;
+                    font-size: {int(self.display_button_width_size//1.7)}px;
                 }}
             """)
         if len(self.entered_password) < 4:
@@ -175,20 +163,20 @@ class PasswordCheckApp(QtWidgets.QDialog):
             self.check_password()
 
     def back(self):
-        self.btn[10].setStyleSheet(f"""
+        self.btn[11].setStyleSheet(f"""
             QPushButton {{
-                background-color: transparent;
-                border: none;
+                border: 2px solid black;
+                background-color: white;
             }}""")
-        self.btn[10].repaint()
+        self.btn[11].repaint()
         sleep(0.1)
         self.close()
     
     def delete_digit(self):
-        self.btn[11].setStyleSheet(f"""
+        self.btn[10].setStyleSheet(f"""
             QPushButton {{
-                background-color: transparent;
-                border: none;
+                border: 2px solid black;
+                background-color: white;
             }}""")
         self.entered_password = self.entered_password[:-1]
         self.update_display()
@@ -207,21 +195,19 @@ class PasswordCheckApp(QtWidgets.QDialog):
     def check_password(self):
         if self.entered_password == self.correct_password:
             self.state_label.setPixmap(self.scaled_unlock_pixmap)
-            self.password_label.setText("P a s s ！")
-            self.password_label.setStyleSheet("""color:green;""")
+            self.password_label.setText("P A S S")
+            self.password_label.setStyleSheet("""color:#00CC00;font-weight: bold;""") # 稍暗的亮綠色
             self.state_label.repaint()
             self.password_label.repaint()
             self.access = True
             sleep(0.6)
             self.close()
         else:
-            self.password_label.setText("E r r o r ！")
-            self.password_label.setStyleSheet("""color:red;""")
+            self.password_label.setText("E R R O R")
+            self.password_label.setStyleSheet("""color:red;font-weight: bold;""")
             self.password_label.repaint()
-            # sleep(0.2)
             self.entered_password = ""
-            self.timer.start()  # 開始計時5秒
-            # self.update_display()
+            self.timer.start()  # 開始計時3秒
 
     def recover_display(self):
         self.update_display()
