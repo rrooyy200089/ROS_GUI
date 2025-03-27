@@ -48,7 +48,7 @@ class PasswordCheckApp(QtWidgets.QDialog):
         # """) # 顯示邊框
         level_main_layout.addWidget(self.state_label)
         
-        # 輸入顯示("●" or "○")
+        # 輸入顯示("●" or "○" ＆ Message)
         self.password_label = QtWidgets.QLabel()
         self.password_label.setAlignment(Qt.AlignCenter)
         self.password_label.setFont(QFont("Times New Roman", 90*self.dpi//141))
@@ -81,7 +81,6 @@ class PasswordCheckApp(QtWidgets.QDialog):
         numbers = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
         for i, num in enumerate(numbers):
             self.btn[i] = QtWidgets.QPushButton(num)
-            # button.setFont(QFont("Arial", 70))
             # self.btn[i].setFixedSize(self.display_button_size, self.display_button_size)
             self.btn[i].setFixedWidth(self.display_button_width_size)
             self.btn[i].setStyleSheet(f"""
@@ -105,7 +104,7 @@ class PasswordCheckApp(QtWidgets.QDialog):
             }}""")
         icon = QIcon(QPixmap(self.project_path + "/icon/backspace.png"))
         self.btn[10].setIcon(icon)
-        self.btn[10].setIconSize(self.btn[10].size()*0.6)
+        self.btn[10].setIconSize(self.btn[10].size()*0.68)
         self.btn[10].pressed.connect(lambda key=10 : self.btn_pressed(key))
         self.btn[10].released.connect(self.delete_digit)
         grid_layout.addWidget(self.btn[10], 2, 2)
@@ -120,7 +119,7 @@ class PasswordCheckApp(QtWidgets.QDialog):
             }}""")
         icon = QIcon(QPixmap(self.project_path + "/icon/back-arrow.png"))
         self.btn[11].setIcon(icon)
-        self.btn[11].setIconSize(self.btn[11].size()*0.6)
+        self.btn[11].setIconSize(self.btn[11].size()*0.68)
         self.btn[11].pressed.connect(lambda key=11 : self.btn_pressed(key))
         self.btn[11].released.connect(self.back)
         grid_layout.addWidget(self.btn[11], 2, 3)        
@@ -128,9 +127,8 @@ class PasswordCheckApp(QtWidgets.QDialog):
         main_layout.addLayout(grid_layout)
         
         self.setLayout(main_layout)
-        self.setWindowFlags(Qt.FramelessWindowHint) # 移除整個視窗的標題列與邊框，但不能用這個方法，因為在開啟時點擊主視窗會觸發 Ubuntu 的 bug
-        # self.setWindowFlags(Qt.SplashScreen | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint) # 將視窗設定成"沒有標題列"的畫面視窗，並永遠保持在最上層，以免在點擊主視窗時不會跳焦
-        # self.setWindowTitle("密碼輸入")
+        # self.setWindowFlags(Qt.FramelessWindowHint) # 移除整個視窗的標題列與邊框，但不能用這個方法，因為在開啟時點擊主視窗會觸發 Ubuntu 的 bug
+        self.setWindowFlags(Qt.SplashScreen | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint) # 將視窗設定成"沒有標題列"的畫面視窗，並永遠保持在最上層，以免在點擊主視窗時不會跳焦
         self.setFixedSize(display_width, display_height)
         self.move((self.screen.width()-display_width)//2, (self.screen.height()-display_height)//2) # 將視窗移到畫面中間
         self.timer.timeout.connect(self.recover_display)

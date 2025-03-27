@@ -56,7 +56,7 @@ if __name__ == '__main__':
     size = app.primaryScreen().availableGeometry()  # 得到畫面可以顯示的範圍
     dpi = int(app.primaryScreen().physicalDotsPerInch())    # 得到畫面的dpi
     path = "/home/ericlai/project/gui_ws/src/robot_control"
-    player = FullscreenGIF(size, dpi, path)
+    player = FullscreenGIF(None, size, dpi, path)
     # player.movie.start()
     # player.showFullScreen()
     player.showGIF()
