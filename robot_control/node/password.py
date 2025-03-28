@@ -32,11 +32,11 @@ class PasswordCheckApp(QtWidgets.QDialog):
 
         # 狀態icon
         self.state_label = QtWidgets.QLabel()
-        self.picture_size = 220 * self.dpi // 141
+        picture_size = 220 * self.dpi // 141
         lock_pixmap = QPixmap(self.project_path + "/icon/lock.png") # 載入鎖上的圖片
         unlock_pixmap = QPixmap(self.project_path + "/icon/unlock.png")  # 載入解鎖的圖片
-        self.scaled_lock_pixmap = lock_pixmap.scaled(self.picture_size, self.picture_size, aspectRatioMode=Qt.KeepAspectRatio) # 調整圖片尺寸
-        self.scaled_unlock_pixmap = unlock_pixmap.scaled(self.picture_size, self.picture_size, aspectRatioMode=Qt.KeepAspectRatio) # 調整圖片尺寸
+        self.scaled_lock_pixmap = lock_pixmap.scaled(picture_size, picture_size, aspectRatioMode=Qt.KeepAspectRatio) # 調整圖片尺寸
+        self.scaled_unlock_pixmap = unlock_pixmap.scaled(picture_size, picture_size, aspectRatioMode=Qt.KeepAspectRatio) # 調整圖片尺寸
         self.state_label.setPixmap(self.scaled_lock_pixmap)
         self.state_label.setAlignment(Qt.AlignCenter)
         self.state_label.setFixedSize((400*self.dpi//141), (250*self.dpi//141))

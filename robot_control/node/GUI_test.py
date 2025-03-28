@@ -21,58 +21,58 @@ btn_text = [['急診', '放射'], ['藥局', '結束']]
 closing_order = ['laser', 'TopologyMap', 'navigation', 'CeilingSLAMwithZED2', 'PBVS', 'continuous', 'ZED', 'D435', 'driver', 'gui']  # 設定關閉順序
 
 class MainWindow(QtWidgets.QWidget):
-    def __init__(self):
+    def __init__(self, screen_size, srceen_dpi, project_path):
         super().__init__()
-        # self.form_event = QtWidgets.QMainWindow()
-        self.setWindowTitle("Robot Control Interface")
-        self.screen = app.primaryScreen().availableGeometry() # 得到畫面可以顯示範圍
-        self.dpi = int(app.primaryScreen().physicalDotsPerInch())   # 得到畫面的dpi
-        print("Screen width:", self.screen.width(), "Screen height:", self.screen.height())
-        self.resize(self.screen.width(), self.screen.height())
-        # self.showMaximized()
-        # self.resize(1500, 800)
-        # self.setWindowState(self.WindowMaximized)
-        self.car_msg_window = CarMessageWindow()
-        self.yesno_window = YesNoWindow()
-        self.gif_gui = FullscreenGIF(self, self.screen, self.dpi, project_path)
-        self.btn = [[None] * 3 for _ in range(2)]
+        # self.setWindowTitle("Robot Control Interface")
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint) # 移除整個視窗的標題列與邊框
+        self.screen = screen_size # 得到畫面可以顯示範圍
+        self.dpi = srceen_dpi  # 得到畫面的dpi
+        self.project_path = project_path
+        # print("Screen width:", self.screen.width(), "Screen height:", self.screen.height())
+        self.resize(self.screen.width(), int(self.screen.height()))
+        self.car_msg_window = CarMessageWindow(self.screen, self.dpi, self.project_path)
+        self.yesno_window = YesNoWindow(self.screen, self.dpi)
+        self.gif_gui = FullscreenGIF(self, self.screen, self.dpi, self.project_path)
+        self.Btn = BtnPush(project_path)
+        self.btn = [[None] * 2 for _ in range(2)]
         self.inactivity_timer = QtCore.QTimer(self)
         self.inactivity_timer.setInterval(10000)
+        self.menu_ui()
 
     def menu_ui(self):
-        self.box = QtWidgets.QWidget(self)
-        # self.box.setGeometry(0, 0, self.screen.width()-10, self.screen.height()-10)
-        self.box.setGeometry(0, 0, self.width()-10, self.height()-45)
-        # self.box.resize(self.width()-10, self.height()-70)
-        print("Screen width:", self.box.width(), "Screen height:", self.box.height())
-        self.grid = QtWidgets.QGridLayout(self.box)
+        btn_function = {btn_text[0][0]:self.Btn.p1, btn_text[0][1]:self.Btn.p2, btn_text[1][0]:self.Btn.p3, btn_text[1][1]:self.Btn.close}
+        
+        grid = QtWidgets.QGridLayout()
+        grid.setSpacing(0) # 設定間距為 0
+        grid.setContentsMargins(0, 0, 0, 0) # 移除內邊距
 
-        row_num = len(btn_text)
+        button_size_width, button_size_height = int(self.width()//2), int(self.height()//2) # 設定按鈕大小
+        
         for i in range(len(btn_text)):
-            col_num = len(btn_text[i])
             for j in range(len(btn_text[i])):
-                self.btn[i][j] = QtWidgets.QPushButton(self)
+                self.btn[i][j] = QtWidgets.QPushButton()
                 self.btn[i][j].setText(btn_text[i][j])
-                self.btn[i][j].setFont(QtGui.QFont('標楷體', 130)) #70
+                self.btn[i][j].setFont(QtGui.QFont('標楷體', 364*self.dpi//188))
                 self.btn[i][j].setStyleSheet('''
                                              QPushButton{
-                                             border : 1px solid gray;
+                                             border : 3px solid gray;
+                                             background-color : white;
                                              }''')
-                self.btn[i][j].setFixedSize(int((self.box.width()-15)/col_num), int((self.box.height()-15)/row_num))
-                # self.btn[i][j].clicked.connect(btn_function[btn_text[i][j]])
+                self.btn[i][j].setFixedSize(button_size_width, button_size_height)
                 self.btn[i][j].setFocusPolicy(QtCore.Qt.NoFocus)     # 不要讓按鈕聚焦
-                self.btn[i][j].pressed.connect(lambda x=i, y=j: Btn.btn_pressed(x, y))  # 當按鈕"按下"時，所要執行的函式
+                self.btn[i][j].pressed.connect(lambda x=i, y=j: self.Btn.btn_pressed(x, y))  # 當按鈕"按下"時，所要執行的函式
                 self.btn[i][j].released.connect(btn_function[btn_text[i][j]]) # 當按鈕"放開"時，所要執行的函式
-                self.grid.addWidget(self.btn[i][j], i, j, QtCore.Qt.AlignCenter)
+                grid.addWidget(self.btn[i][j], i, j, QtCore.Qt.AlignCenter)
 
+        self.setLayout(grid)
         self.inactivity_timer.timeout.connect(self.screensaver)
         self.installEventFilter(self)
 
-    def screensaver(self):
+    def screensaver(self):  # 當一段時間 UI 都沒有變化時，就顯示螢幕保護程式
         self.inactivity_timer.stop()
         self.gif_gui.showGIF()
 
-    def eventFilter(self, source, event):
+    def eventFilter(self, source, event):  # 當 UI 有發生變化，就重新計時
         if event.type() == QtCore.QEvent.Paint:
             self.inactivity_timer.start()
         return super().eventFilter(source, event)
@@ -81,71 +81,49 @@ class MainWindow(QtWidgets.QWidget):
         self.inactivity_timer.start()
 
 class CarMessageWindow(QtWidgets.QDialog):
-    def __init__(self):
+    def __init__(self, screen_size, srceen_dpi, project_path):
         super().__init__()
         self.setWindowTitle("車子低電量警告")
-        self.screen = app.primaryScreen().availableGeometry() # 得到畫面可以顯示範圍
-        # print("Screen width:", self.screen.width(), "Screen height:", self.screen.height())
-        self.dpi = int(app.primaryScreen().physicalDotsPerInch())
-        self.window_height = self.screen.height() - int(130*self.dpi//188)
-        self.window_width = self.screen.width() - int(500*self.dpi//188)
-        self.resize(self.window_width, self.window_height)
-        self.move(((self.screen.width() - self.window_width) // 2), ((self.screen.height() - self.window_height) // 2))
-        # self.resize(int(self.screen.width()*0.8), int(self.screen.height()*0.8))
-        # self.move(int((self.screen.width() - self.screen.width()*0.8) // 2), int((self.screen.height() - self.screen.height()*0.8) // 2))
-        # self.setGeometry((self.screen.width()/2)-(self.window_width/2), (self.screen.height()/2)-(self.window_height/2), self.window_width, self.window_height)
-        rospy.Subscriber("/car_voltage", Float64, self.get_car_power, queue_size=1)
+        self.screen = screen_size
+        self.dpi = srceen_dpi
+        self.image_path = project_path + "/icon/low-battery.png"
         self.car_power = 0
         self.car_enable = True
         self.n = 0
-        self.image_path = project_path + "/icon/low-battery.png"
+        window_width, window_height = int(self.screen.width()*0.8), int(self.screen.height()*0.9)
+        self.resize(window_width, window_height)
+        self.move(((self.screen.width() - window_width) // 2), ((self.screen.height() - window_height) // 2))
+        rospy.Subscriber("/car_voltage", Float64, self.get_car_power, queue_size=1)
         self.ui()
-        # print(f"svodnv  {app.primaryScreen().physicalDotsPerInch()}")
 
     def ui(self):
-        self.mbox = QtWidgets.QWidget(self)
-        self.mbox.setGeometry(0, 0, self.width()-(6*self.dpi//188), self.height()-(6*self.dpi//188))
-        # # self.mbox.setGeometry(10, 10, 1400, 900)
-        # print(f"vjskdbvu : {self.mbox.width()}")
-        mgrid = QtWidgets.QGridLayout(self.mbox)
+        msg_layout = QtWidgets.QVBoxLayout(self)
 
-        # background_color = self.palette().color(self.backgroundRole())  # 得到視窗的背景顏色
-        # color_name = background_color.name()  # 得到顏色的名稱
-
-        lab_icon = QtWidgets.QLabel(self)
-        # lab_icon_size = int(750*self.dpi//188)
-        # lab_icon.resize(lab_icon_size, lab_icon_size)
-        # lab_icon.setStyleSheet(f'''QLabel{{border : 2px solid {color_name};}}''')  # 將icon的邊框設成更背景顏色一樣，以便隱藏邊框
-        # lab_icon.setStyleSheet(f'''QLabel{{border : 2px solid black;}}''')  # 將icon的邊框設成更背景顏色一樣，以便隱藏邊框
-        pixmap = QtGui.QPixmap(self.image_path)
-        pixmap_size = int(750*self.dpi//188)
-        scaled_pixmap = pixmap.scaled(int(pixmap_size*1.76552), pixmap_size)  #1.76552是圖片長與寬的比例
+        # 顯示沒電圖示的label
+        lab_icon = QtWidgets.QLabel()
+        pixmap = QtGui.QPixmap(self.image_path) # 載入沒電的圖片
+        pixmap_size = int((750*self.dpi//188))
+        scaled_pixmap = pixmap.scaled(int(pixmap_size*1.76552), pixmap_size, aspectRatioMode=QtCore.Qt.KeepAspectRatio)  # 調整圖片尺寸，其中1.76552是圖片長與寬的比例
         lab_icon.setPixmap(scaled_pixmap)
         lab_icon.setAlignment(QtCore.Qt.AlignCenter)
-        mgrid.addWidget(lab_icon, 0, 0)
+        msg_layout.addWidget(lab_icon)
 
-        self.mbtn = QtWidgets.QPushButton(self)
+        # 按鈕
+        self.mbtn = QtWidgets.QPushButton()
         self.mbtn.setText("OK")
         self.mbtn.setFont(QtGui.QFont('Times New Roman', int(200*self.dpi//188)))
         check_icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton)
         self.mbtn.setIcon(check_icon) 
-        self.mbtn.setStyleSheet(f'''
-                           QPushButton{{
-                           min-height:{int(300*self.dpi//188)}px;
-                           }}''')
-        self.mbtn.setIconSize(self.mbtn.size() * 5)
+        self.mbtn.setIconSize(QtCore.QSize(self.mbtn.size()*0.7*self.dpi/188))
+        self.mbtn.setStyleSheet("QPushButton{border : 2px solid black;background-color : white;}")
         self.mbtn.pressed.connect(self.btn_pressed)  # 當按鈕"按下"時，所要執行的函式
         self.mbtn.released.connect(self.btn) # 當按鈕"放開"時，所要執行的函式
-        # self.mbtn.clicked.connect(self.btn)
         self.mbtn.setFocusPolicy(QtCore.Qt.NoFocus)     # 不要讓按鈕聚焦
-        mgrid.addWidget(self.mbtn, 1, 0)
+        msg_layout.addWidget(self.mbtn)
 
     def get_car_power(self, msg):
         self.car_power = msg.data
         if self.car_power < 23 and self.car_enable:
-            # QtCore.QMetaObject.invokeMethod(self, "message_display", QtCore.Qt.QueuedConnection)
-            # QtCore.QTimer.singleShot(0, self.message_display)
-            # QtCore.QTimer.singleShot(0, lambda text = "沒電":self.message_display(message_text=text))
             self.n += 1
             if self.n > 2 :     # 當資料連續三筆都小於低電壓的閥值時，則判定車子沒電
                 self.exec_()
@@ -153,78 +131,71 @@ class CarMessageWindow(QtWidgets.QDialog):
         elif self.car_enable and self.n > 0 : self.n = 0
 
     def btn_pressed(self):        # 當按鈕按下時，會將按鈕背景顏色改成黃色
-        self.mbtn.setStyleSheet(f"QPushButton{{background-color : yellow;min-height:{int(300*self.dpi//188)}px;}}")
+        self.mbtn.setStyleSheet("QPushButton{border : 2px solid black;background-color : yellow;}")
 
     def btn(self):
-        self.mbtn.setStyleSheet(f"QPushButton{{background-color : lightgray;min-height:{int(300*self.dpi//188)}px;}}")
+        self.mbtn.setStyleSheet("QPushButton{border : 2px solid black;background-color : white;}")
         self.close()
 
 class YesNoWindow(QtWidgets.QDialog):
-    def __init__(self):
+    def __init__(self, screen_size, srceen_dpi):
         super().__init__()
         self.setWindowTitle("確認是否執行動作")
-        self.screen = app.primaryScreen().availableGeometry() # 得到畫面可以顯示範圍
-        # print("Screen width:", self.screen.width(), "Screen height:", self.screen.height())
-        self.dpi = int(app.primaryScreen().physicalDotsPerInch())
-        # self.window_height = self.screen.height() - int(130*self.dpi//188)
-        # self.window_width = self.screen.width() - int(500*self.dpi//188)
-        self.resize(int(self.screen.width()*0.8), int(self.screen.height()*0.8))
-        self.move(int((self.screen.width() - self.screen.width()*0.8) // 2), int((self.screen.height() - self.screen.height()*0.8) // 2))
-        self.font_size = 160*self.dpi//188
+        self.screen = screen_size # 得到畫面可以顯示範圍
+        self.dpi = srceen_dpi
+        self.resize(int(self.screen.width()*0.9), int(self.screen.height()*0.9))
+        self.move(int((self.screen.width() - self.screen.width()*0.9) // 2), int((self.screen.height() - self.screen.height()*0.9) // 2))
+        print(self.dpi)
         self.ui()
 
     def ui(self):
-        self.box = QtWidgets.QWidget(self)
-        self.box.setGeometry(0, 0, self.width()-(6*self.dpi//188), self.height()-(6*self.dpi//188))
+        button_size_height = int(self.height()*0.93) # 按鈕的高度
+        button_size_width = int(self.width()*0.95//2)
 
-        grid = QtWidgets.QGridLayout(self.box)
+        self.msg_layout = QtWidgets.QHBoxLayout(self)
         
-        self.Ybtn = QtWidgets.QPushButton(self)
+        # Yes按鈕
+        self.Ybtn = QtWidgets.QPushButton()
         yes_icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton)
         self.Ybtn.setIcon(yes_icon)
-        self.Ybtn.setStyleSheet(f'''
-                           QPushButton{{
-                           min-width:{int(((self.box.width()-25)//2)*self.dpi//188)}px;
-                           min-height:{self.box.height()}px;
-                           }}''')
-        self.Ybtn.setIconSize(self.Ybtn.size() * 13)
+        self.Ybtn.setFixedSize(button_size_width, button_size_height)
+        self.Ybtn.setStyleSheet("QPushButton{border : 3px solid gray;background-color : white;}")
+        self.Ybtn.setIconSize(self.Ybtn.size())
         self.Ybtn.pressed.connect(lambda x="Yes": self.btn_pressed(x))  # 當按鈕"按下"時，所要執行的函式
         self.Ybtn.released.connect(self.accept) # 當按鈕"放開"時，所要執行的函式，其中函式為QDialog提供的方法
         # self.Ybtn.clicked.connect(self.accept)  # QDialog提供的方法
         self.Ybtn.setFocusPolicy(QtCore.Qt.NoFocus)     # 不要讓按鈕聚焦
-        grid.addWidget(self.Ybtn, 0, 0)
+        self.msg_layout.addWidget(self.Ybtn)
 
-        self.Nbtn = QtWidgets.QPushButton(self)
+        # No按鈕
+        self.Nbtn = QtWidgets.QPushButton()
         no_icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogCancelButton)
         self.Nbtn.setIcon(no_icon)
-        self.Nbtn.setStyleSheet(f'''
-                           QPushButton{{
-                           min-width:{int(((self.box.width()-10)//2)*self.dpi//188)}px;
-                           min-height:{self.box.height()}px;
-                           }}''')
-        self.Nbtn.setIconSize(self.Nbtn.size() * 13)
+        self.Nbtn.setFixedSize(button_size_width, button_size_height)
+        self.Nbtn.setStyleSheet("QPushButton{border : 3px solid gray;background-color : white;}")
+        self.Nbtn.setIconSize(self.Nbtn.size())
         self.Nbtn.pressed.connect(lambda x="No": self.btn_pressed(x))  # 當按鈕"按下"時，所要執行的函式
-        self.Nbtn.released.connect(self.reject) # 當按鈕"放開"時，所要執行的函式，其中函式為QDialog提供的方法
+        self.Nbtn.released.connect(self.reject) # 當lightgray按鈕"放開"時，所要執行的函式，其中函式為QDialog提供的方法
         # self.Nbtn.clicked.connect(self.reject)  # QDialog提供的方法
         self.Nbtn.setFocusPolicy(QtCore.Qt.NoFocus)     # 不要讓按鈕聚焦
-        grid.addWidget(self.Nbtn, 0, 1)
+        self.msg_layout.addWidget(self.Nbtn)
 
     def btn_pressed(self, x):        # 當按鈕按下時，會根據回傳的x內容，將所對應的按鈕背景顏色改成黃色
-        (self.Ybtn if x == "Yes" else self.Nbtn).setStyleSheet(f"QPushButton{{background-color : yellow;min-width:{int(((self.box.width()-10)//2)*self.dpi//188)}px;min-height:{self.box.height()}px;}}")
+        (self.Ybtn if x == "Yes" else self.Nbtn).setStyleSheet("QPushButton{border : 3px solid gray;background-color : yellow;}")
 
     def accept(self):
         """覆寫 accept 方法"""
-        self.Ybtn.setStyleSheet(f"QPushButton{{background-color : lightgray;min-width:{int(((self.box.width()-10)//2)*self.dpi//188)}px;min-height:{self.box.height()}px;}}")
+        self.Ybtn.setStyleSheet("QPushButton{border : 3px solid gray;background-color : white;}")
         super().accept()  # 調用父類的 accept，關閉對話框
 
     def reject(self):
         """覆寫 reject 方法"""
-        self.Nbtn.setStyleSheet(f"QPushButton{{background-color : lightgray;min-width:{int(((self.box.width()-10)//2)*self.dpi//188)}px;min-height:{self.box.height()}px;}}")
+        self.Nbtn.setStyleSheet("QPushButton{border : 3px solid gray;background-color : white;}")
         super().reject()  # 調用父類的 reject，關閉對話框
 
 
 class BtnPush():
-    def __init__(self):
+    def __init__(self, project_path):
         self.navigation_goal = rospy.get_param("/TopologyMap_server/start_node", "P1")
         # self.pub = rospy.Publisher("/TopologyMap_server/goal", TopologyMapActionGoal, queue_size=1, latch=True)
         self.pub = rospy.Publisher("/GUI_NavigationMsg", Navigation_server, queue_size=1, latch=True)
@@ -232,13 +203,15 @@ class BtnPush():
         self.navigation_state_pub = rospy.Publisher('/NavigationState', Bool, queue_size=1, latch=True)
         self.navigation_ctrl = Navigation_server()
         self.navigation_client = actionlib.SimpleActionClient('move_base', MoveBaseAction)
+        self.script_path = project_path + "/Script/restart_script_stage_1.sh"
+
 
     def btn_pressed(self, x, y):        # 當按鈕按下時，會根據回傳的x, y值，將所對應的按鈕背景顏色改成黃色
         # print(f"x:{x} y:{y}")
-        window.btn[x][y].setStyleSheet("background-color : yellow")
+        window.btn[x][y].setStyleSheet("QPushButton{border : 3px solid gray;background-color : yellow}")
 
     def p1(self):   # 急診
-        window.btn[0][0].setStyleSheet("background-color : lightgray")
+        window.btn[0][0].setStyleSheet("QPushButton{border : 3px solid gray;background-color : white}")
         # window.car_msg_window.exec_()
         if(window.car_msg_window.car_enable):
             ret = window.yesno_window.exec_()
@@ -250,10 +223,9 @@ class BtnPush():
             # print("急診")
         else :
             window.car_msg_window.exec_()
-        # player.play_music()
     
     def p2(self):   # 放射
-        window.btn[0][1].setStyleSheet("background-color : lightgray")
+        window.btn[0][1].setStyleSheet("QPushButton{border : 3px solid gray;background-color : white}")
         if(window.car_msg_window.car_enable):
             ret = window.yesno_window.exec_()
             if ret == QtWidgets.QDialog.Rejected : return
@@ -261,14 +233,12 @@ class BtnPush():
             # self.navigation_ctrl.command = ['P6', 'parking_bodycamera']
             # print(self.navigation_ctrl)
             # self.pub.publish(self.navigation_ctrl)
-            # window.gif_gui.showGIF()
             print("放射")
         else :
             window.car_msg_window.exec_()
-        # player.stop_music()
 
     def p3(self):   # 藥局
-        window.btn[1][0].setStyleSheet("background-color : lightgray")
+        window.btn[1][0].setStyleSheet("QPushButton{border : 3px solid gray;background-color : white}")
         if(window.car_msg_window.car_enable):
             ret = window.yesno_window.exec_()
             # print('Yes' if ret == QtWidgets.QDialog.Accepted else "N0")
@@ -284,7 +254,7 @@ class BtnPush():
             window.car_msg_window.exec_()
 
     def close(self):
-        window.btn[1][1].setStyleSheet("background-color : lightgray")
+        window.btn[1][1].setStyleSheet("QPushButton{border : 3px solid gray;background-color : white}")
         ret = window.yesno_window.exec_()
         if ret == QtWidgets.QDialog.Rejected : return
         else : SaveNavigationInfo.write()
@@ -309,13 +279,13 @@ class BtnPush():
         # c.daemon = True
         # r = threading.Thread(target=Process.restart())
         # r.daemon = True
-        if os.path.exists(script_path):  # 判斷檔案是否存在
+        if os.path.exists(self.script_path):  # 判斷檔案是否存在
             self.navigation_client.cancel_goal()    #取消當前導航
             self.navigation_state_pub(False)
             self.close(ask=False)
             # c.start()
             time.sleep(2)
-            Process.restart()
+            Process.restart(self.script_path)
             # c.start()
             # c.join()
             # time.sleep(2)
@@ -360,7 +330,7 @@ class Process():
                     time.sleep(1)
                     break
 
-    def restart():
+    def restart(script_path):
         # print(script_path)
         try:
             subprocess.Popen([script_path])
@@ -368,9 +338,10 @@ class Process():
             print("An error occurred while running the command:", e)
 
 class NavigationPlayMusic():
-    def __init__(self):
+    def __init__(self, project_path):
         self.playerlist = QtMultimedia.QMediaPlaylist()
         self.player = QtMultimedia.QMediaPlayer()
+        music_path = project_path + "/music/Free_Music.mp3"
         qurl = QtCore.QUrl.fromLocalFile(music_path)
         qmusic = QtMultimedia.QMediaContent(qurl)
         self.playerlist.addMedia(qmusic)
@@ -393,16 +364,11 @@ class NavigationPlayMusic():
 if __name__ == "__main__":
     rospy.init_node('GUI_node')
     app = QtWidgets.QApplication(sys.argv)
-    # while not rospy.is_shutdown():
-    project_path = os.path.dirname(os.path.dirname(__file__))
-    window = MainWindow()
-    Btn = BtnPush()
-    btn_function = {btn_text[0][0]:Btn.p1, btn_text[0][1]:Btn.p2, btn_text[1][0]:Btn.p3, btn_text[1][1]:Btn.close}
-    window.menu_ui()
-    script_path = project_path + "/Script/restart_script_stage_1.sh"
-    music_path = project_path + "/music/Free_Music.mp3"
-    player = NavigationPlayMusic()
-    # print(script_path)
+    path = os.path.dirname(os.path.dirname(__file__)) # 專案路徑
+    screen = app.primaryScreen().availableGeometry() # 得到畫面可以顯示範圍
+    dpi = int(app.primaryScreen().physicalDotsPerInch())   # 得到畫面的dpi
+    window = MainWindow(screen, dpi, path)
+    player = NavigationPlayMusic(path)
     window.show()
     window.inactivity_timer.start()
     sys.exit(app.exec_())

@@ -10,29 +10,25 @@ class FullscreenGIF(QtWidgets.QWidget):
         super().__init__(parent)
         self.password_gui = PasswordCheckApp(screen_size, screen_dpi, project_path)
         self.gif_path = project_path + "/screen_image/1742019751952.gif"  # GIF 檔案路徑
+        self.screen = screen_size
         self.initUI()
     
     def initUI(self):
         layout = QtWidgets.QVBoxLayout()
-        
-        self.label = QtWidgets.QLabel(self)
+
+        self.label = QtWidgets.QLabel()
         self.label.setAlignment(Qt.AlignCenter)
+        self.movie = QMovie(self.gif_path)
+        self.label.setMovie(self.movie)
         layout.addWidget(self.label)
         
         self.setLayout(layout)
         
-        self.movie = QMovie(self.gif_path)
-        self.label.setMovie(self.movie)
-        
         # self.setWindowFlags(Qt.FramelessWindowHint)
         self.setWindowFlags(Qt.SplashScreen)
-        # self.showFullScreen()
         
-        screen_size = QtWidgets.QApplication.primaryScreen().size()
-        self.movie.setScaledSize(QSize(screen_size.width(), screen_size.height()))
-        
-        # self.movie.start()
-        
+        self.movie.setScaledSize(QSize(self.screen.size()))
+                
         self.setStyleSheet("background-color: black;")
         
     # def keyPressEvent(self, event):
