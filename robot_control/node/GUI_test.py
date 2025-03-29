@@ -5,7 +5,8 @@ import rospy
 import sys
 from PyQt5 import QtWidgets, QtCore, QtGui, QtMultimedia
 from forklift_server.msg import TopologyMapActionGoal
-import subprocess, time, os
+import subprocess, os
+from time import sleep
 from std_msgs.msg import Bool, Float64, String
 import threading
 # from include_py import creat_navigation_info
@@ -132,6 +133,8 @@ class CarMessageWindow(QtWidgets.QDialog):
 
     def btn_pressed(self):        # 當按鈕按下時，會將按鈕背景顏色改成黃色
         self.mbtn.setStyleSheet("QPushButton{border : 2px solid black;background-color : yellow;}")
+        self.mbtn.repaint()
+        sleep(0.1)
 
     def btn(self):
         self.mbtn.setStyleSheet("QPushButton{border : 2px solid black;background-color : white;}")
@@ -181,7 +184,10 @@ class YesNoWindow(QtWidgets.QDialog):
         self.msg_layout.addWidget(self.Nbtn)
 
     def btn_pressed(self, x):        # 當按鈕按下時，會根據回傳的x內容，將所對應的按鈕背景顏色改成黃色
-        (self.Ybtn if x == "Yes" else self.Nbtn).setStyleSheet("QPushButton{border : 3px solid gray;background-color : yellow;}")
+        btn = (self.Ybtn if x == "Yes" else self.Nbtn)
+        btn.setStyleSheet("QPushButton{border : 3px solid gray;background-color : yellow;}")
+        btn.repaint()
+        sleep(0.1)
 
     def accept(self):
         """覆寫 accept 方法"""
@@ -209,6 +215,8 @@ class BtnPush():
     def btn_pressed(self, x, y):        # 當按鈕按下時，會根據回傳的x, y值，將所對應的按鈕背景顏色改成黃色
         # print(f"x:{x} y:{y}")
         window.btn[x][y].setStyleSheet("QPushButton{border : 3px solid gray;background-color : yellow}")
+        window.btn[x][y].repaint()
+        sleep(0.1)
 
     def p1(self):   # 急診
         window.btn[0][0].setStyleSheet("QPushButton{border : 3px solid gray;background-color : white}")
@@ -258,7 +266,7 @@ class BtnPush():
         ret = window.yesno_window.exec_()
         if ret == QtWidgets.QDialog.Rejected : return
         else : SaveNavigationInfo.write()
-        # time.sleep(1)
+        # sleep(1)
         param = '-15'
         enable = False
         while True:
@@ -266,7 +274,7 @@ class BtnPush():
             if len(process) <= 1 and enable: break
             # elif enable: param = '-9', print("Closing not completed yet!!!")
             Process.close(ros_process=process, kill_param=param)
-            time.sleep(1)
+            sleep(1)
             enable = True
         print("close")
 
@@ -284,11 +292,11 @@ class BtnPush():
             self.navigation_state_pub(False)
             self.close(ask=False)
             # c.start()
-            time.sleep(2)
+            sleep(2)
             Process.restart(self.script_path)
             # c.start()
             # c.join()
-            # time.sleep(2)
+            # sleep(2)
             # r = threading.Thread(target=Process.restart(), daemon=True)
             # r.start()
         else :
@@ -327,7 +335,7 @@ class Process():
                     if 'gui' in command: window.close()
                     print(f'name : {command}  PID : {command_pid}')
                     subprocess.run(['kill', kill_param, command_pid])
-                    time.sleep(1)
+                    sleep(1)
                     break
 
     def restart(script_path):
