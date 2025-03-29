@@ -127,8 +127,8 @@ class PasswordCheckApp(QtWidgets.QDialog):
         main_layout.addLayout(grid_layout)
         
         self.setLayout(main_layout)
-        self.setWindowFlags(Qt.FramelessWindowHint) # 移除整個視窗的標題列與邊框，但不能用這個方法，因為在開啟時點擊主視窗會觸發 Ubuntu 的 bug
-        # self.setWindowFlags(Qt.SplashScreen | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint) # 將視窗設定成"沒有標題列"的畫面視窗，並永遠保持在最上層，以免在點擊主視窗時不會跳焦
+        # self.setWindowFlags(Qt.FramelessWindowHint) # 移除整個視窗的標題列與邊框，但不能用這個方法，因為在開啟時點擊主視窗會觸發 Ubuntu 的 bug
+        self.setWindowFlags(Qt.SplashScreen | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint) # 將視窗設定成"沒有標題列"的畫面視窗，並永遠保持在最上層，以免在點擊主視窗時不會跳焦
         self.setFixedSize(display_width, display_height)
         self.move((self.screen.width()-display_width)//2, (self.screen.height()-display_height)//2) # 將視窗移到畫面中間
         self.timer.timeout.connect(self.recover_display)

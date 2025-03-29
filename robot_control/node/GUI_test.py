@@ -60,7 +60,7 @@ class MainWindow(QtWidgets.QWidget):
                                              background-color : white;
                                              }''')
                 self.btn[i][j].setFixedSize(button_size_width, button_size_height)
-                self.btn[i][j].setFocusPolicy(QtCore.Qt.NoFocus)     # 不要讓按鈕聚焦
+                # self.btn[i][j].setFocusPolicy(QtCore.Qt.NoFocus)     # 不要讓按鈕聚焦
                 self.btn[i][j].pressed.connect(lambda x=i, y=j: self.Btn.btn_pressed(x, y))  # 當按鈕"按下"時，所要執行的函式
                 self.btn[i][j].released.connect(btn_function[btn_text[i][j]]) # 當按鈕"放開"時，所要執行的函式
                 grid.addWidget(self.btn[i][j], i, j, QtCore.Qt.AlignCenter)
@@ -70,6 +70,7 @@ class MainWindow(QtWidgets.QWidget):
         self.installEventFilter(self)
 
     def screensaver(self):  # 當一段時間 UI 都沒有變化時，就顯示螢幕保護程式
+        self.removeEventFilter(self) # 解除主視窗的事件檢測
         self.inactivity_timer.stop()
         self.gif_gui.showGIF()
 
@@ -79,6 +80,7 @@ class MainWindow(QtWidgets.QWidget):
         return super().eventFilter(source, event)
     
     def resume_timer(self):
+        self.installEventFilter(self) # 安裝主視窗的事件檢測
         self.inactivity_timer.start()
 
 class CarMessageWindow(QtWidgets.QDialog):
@@ -119,7 +121,7 @@ class CarMessageWindow(QtWidgets.QDialog):
         self.mbtn.setStyleSheet("QPushButton{border : 2px solid black;background-color : white;}")
         self.mbtn.pressed.connect(self.btn_pressed)  # 當按鈕"按下"時，所要執行的函式
         self.mbtn.released.connect(self.btn) # 當按鈕"放開"時，所要執行的函式
-        self.mbtn.setFocusPolicy(QtCore.Qt.NoFocus)     # 不要讓按鈕聚焦
+        # self.mbtn.setFocusPolicy(QtCore.Qt.NoFocus)     # 不要讓按鈕聚焦
         msg_layout.addWidget(self.mbtn)
 
     def get_car_power(self, msg):
@@ -138,7 +140,13 @@ class CarMessageWindow(QtWidgets.QDialog):
 
     def btn(self):
         self.mbtn.setStyleSheet("QPushButton{border : 2px solid black;background-color : white;}")
+        window.installEventFilter(window) # 安裝主視窗的事件檢測
         self.close()
+
+    def showEvent(self, event):
+        window.removeEventFilter(window) # 解除主視窗的事件檢測
+        window.inactivity_timer.stop()
+        super().showEvent(event)
 
 class YesNoWindow(QtWidgets.QDialog):
     def __init__(self, screen_size, srceen_dpi):
@@ -148,7 +156,8 @@ class YesNoWindow(QtWidgets.QDialog):
         self.dpi = srceen_dpi
         self.resize(int(self.screen.width()*0.9), int(self.screen.height()*0.9))
         self.move(int((self.screen.width() - self.screen.width()*0.9) // 2), int((self.screen.height() - self.screen.height()*0.9) // 2))
-        # print(self.dpi)
+        self.inactivity_timer = QtCore.QTimer(self)
+        self.inactivity_timer.setInterval(10000)
         self.ui()
 
     def ui(self):
@@ -167,7 +176,7 @@ class YesNoWindow(QtWidgets.QDialog):
         self.Ybtn.pressed.connect(lambda x="Yes": self.btn_pressed(x))  # 當按鈕"按下"時，所要執行的函式
         self.Ybtn.released.connect(self.accept) # 當按鈕"放開"時，所要執行的函式，其中函式為QDialog提供的方法
         # self.Ybtn.clicked.connect(self.accept)  # QDialog提供的方法
-        self.Ybtn.setFocusPolicy(QtCore.Qt.NoFocus)     # 不要讓按鈕聚焦
+        # self.Ybtn.setFocusPolicy(QtCore.Qt.NoFocus)     # 不要讓按鈕聚焦
         self.msg_layout.addWidget(self.Ybtn)
 
         # No按鈕
@@ -180,8 +189,10 @@ class YesNoWindow(QtWidgets.QDialog):
         self.Nbtn.pressed.connect(lambda x="No": self.btn_pressed(x))  # 當按鈕"按下"時，所要執行的函式
         self.Nbtn.released.connect(self.reject) # 當lightgray按鈕"放開"時，所要執行的函式，其中函式為QDialog提供的方法
         # self.Nbtn.clicked.connect(self.reject)  # QDialog提供的方法
-        self.Nbtn.setFocusPolicy(QtCore.Qt.NoFocus)     # 不要讓按鈕聚焦
+        # self.Nbtn.setFocusPolicy(QtCore.Qt.NoFocus)     # 不要讓按鈕聚焦
         self.msg_layout.addWidget(self.Nbtn)
+
+        self.inactivity_timer.timeout.connect(self.reject) # 當一段時間都沒有去點選後，就關閉Yes/No視窗
 
     def btn_pressed(self, x):        # 當按鈕按下時，會根據回傳的x內容，將所對應的按鈕背景顏色改成黃色
         btn = (self.Ybtn if x == "Yes" else self.Nbtn)
@@ -192,13 +203,22 @@ class YesNoWindow(QtWidgets.QDialog):
     def accept(self):
         """覆寫 accept 方法"""
         self.Ybtn.setStyleSheet("QPushButton{border : 3px solid gray;background-color : white;}")
+        self.inactivity_timer.stop()
+        window.installEventFilter(window) # 安裝主視窗的事件檢測
         super().accept()  # 調用父類的 accept，關閉對話框
 
     def reject(self):
         """覆寫 reject 方法"""
         self.Nbtn.setStyleSheet("QPushButton{border : 3px solid gray;background-color : white;}")
+        self.inactivity_timer.stop()
+        window.installEventFilter(window) # 安裝主視窗的事件檢測
         super().reject()  # 調用父類的 reject，關閉對話框
 
+    def showEvent(self, event):
+        window.removeEventFilter(window) # 解除主視窗的事件檢測
+        window.inactivity_timer.stop()
+        super().showEvent(event)
+        self.inactivity_timer.start()
 
 class BtnPush():
     def __init__(self, project_path):
