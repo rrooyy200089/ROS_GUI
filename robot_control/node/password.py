@@ -21,7 +21,7 @@ class PasswordCheckApp(QtWidgets.QDialog):
         self.initUI()
     
     def initUI(self):
-        display_width, display_height = int(self.screen.height()*1.5), int(self.screen.height()-50*self.dpi//141)
+        display_width, display_height = int(self.screen.height()*1.5), int(self.screen.height()-50*self.dpi//188)
         self.display_button_width_size = int(display_width / 4.2)
 
         # 設定成垂直顯示
@@ -32,14 +32,14 @@ class PasswordCheckApp(QtWidgets.QDialog):
 
         # 狀態icon
         self.state_label = QtWidgets.QLabel()
-        picture_size = 220 * self.dpi // 141
+        picture_size = 250 * self.dpi // 188
         lock_pixmap = QPixmap(self.project_path + "/icon/lock.png") # 載入鎖上的圖片
         unlock_pixmap = QPixmap(self.project_path + "/icon/unlock.png")  # 載入解鎖的圖片
         self.scaled_lock_pixmap = lock_pixmap.scaled(picture_size, picture_size, aspectRatioMode=Qt.KeepAspectRatio) # 調整圖片尺寸
         self.scaled_unlock_pixmap = unlock_pixmap.scaled(picture_size, picture_size, aspectRatioMode=Qt.KeepAspectRatio) # 調整圖片尺寸
         self.state_label.setPixmap(self.scaled_lock_pixmap)
         self.state_label.setAlignment(Qt.AlignCenter)
-        self.state_label.setFixedSize((400*self.dpi//141), (250*self.dpi//141))
+        self.state_label.setFixedSize((500*self.dpi//188), (270*self.dpi//188))
         # self.state_label.setStyleSheet("""
         #     QLabel {
         #         border: 2px solid black;
@@ -51,7 +51,7 @@ class PasswordCheckApp(QtWidgets.QDialog):
         # 輸入顯示("●" or "○" ＆ Message)
         self.password_label = QtWidgets.QLabel()
         self.password_label.setAlignment(Qt.AlignCenter)
-        self.password_label.setFont(QFont("Times New Roman", 90*self.dpi//141))
+        self.password_label.setFont(QFont("Times New Roman", 120*self.dpi//188))
         # self.password_label.setStyleSheet("""
         #     QLabel {
         #         border: 2px solid black;
@@ -64,7 +64,7 @@ class PasswordCheckApp(QtWidgets.QDialog):
 
         # 無顯示(幫助調整位置用的)
         self.label = QtWidgets.QLabel()
-        self.label.setFixedWidth(80*self.dpi//141)
+        self.label.setFixedWidth(150*self.dpi//188)
         # self.label.setStyleSheet(""" 
         #     QLabel {
         #         border: 2px solid black;
@@ -127,8 +127,8 @@ class PasswordCheckApp(QtWidgets.QDialog):
         main_layout.addLayout(grid_layout)
         
         self.setLayout(main_layout)
-        # self.setWindowFlags(Qt.FramelessWindowHint) # 移除整個視窗的標題列與邊框，但不能用這個方法，因為在開啟時點擊主視窗會觸發 Ubuntu 的 bug
-        self.setWindowFlags(Qt.SplashScreen | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint) # 將視窗設定成"沒有標題列"的畫面視窗，並永遠保持在最上層，以免在點擊主視窗時不會跳焦
+        self.setWindowFlags(Qt.FramelessWindowHint) # 移除整個視窗的標題列與邊框，但不能用這個方法，因為在開啟時點擊主視窗會觸發 Ubuntu 的 bug
+        # self.setWindowFlags(Qt.SplashScreen | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint) # 將視窗設定成"沒有標題列"的畫面視窗，並永遠保持在最上層，以免在點擊主視窗時不會跳焦
         self.setFixedSize(display_width, display_height)
         self.move((self.screen.width()-display_width)//2, (self.screen.height()-display_height)//2) # 將視窗移到畫面中間
         self.timer.timeout.connect(self.recover_display)

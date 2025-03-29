@@ -148,7 +148,7 @@ class YesNoWindow(QtWidgets.QDialog):
         self.dpi = srceen_dpi
         self.resize(int(self.screen.width()*0.9), int(self.screen.height()*0.9))
         self.move(int((self.screen.width() - self.screen.width()*0.9) // 2), int((self.screen.height() - self.screen.height()*0.9) // 2))
-        print(self.dpi)
+        # print(self.dpi)
         self.ui()
 
     def ui(self):
