@@ -3,7 +3,7 @@
 import sys, os
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QFont, QIcon, QPixmap
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt, QTimer, QEvent
 from time import sleep
 
 class PasswordCheckApp(QtWidgets.QDialog):
@@ -16,8 +16,10 @@ class PasswordCheckApp(QtWidgets.QDialog):
         self.screen = screen_size
         self.dpi = screen_dpi
         self.access = False # 是否解鎖
-        self.timer = QTimer(self)   # 設定顯示"Error"文字的時間
-        self.timer.setInterval(3000)    # 3秒
+        self.text_timer = QTimer(self)   # 設定顯示"Error"文字的時間
+        self.text_timer.setInterval(3000)    # 3秒
+        self.display_timer = QTimer(self)
+        self.display_timer.setInterval(10000) # 設定多久沒變化的時間
         self.initUI()
     
     def initUI(self):
@@ -131,7 +133,8 @@ class PasswordCheckApp(QtWidgets.QDialog):
         self.setWindowFlags(Qt.SplashScreen | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint) # 將視窗設定成"沒有標題列"的畫面視窗，並永遠保持在最上層，以免在點擊主視窗時不會跳焦
         self.setFixedSize(display_width, display_height)
         self.move((self.screen.width()-display_width)//2, (self.screen.height()-display_height)//2) # 將視窗移到畫面中間
-        self.timer.timeout.connect(self.recover_display)
+        self.text_timer.timeout.connect(self.recover_display)
+        self.display_timer.timeout.connect(self.close_window)
         # self.show()
 
     def btn_pressed(self, key):
@@ -168,7 +171,7 @@ class PasswordCheckApp(QtWidgets.QDialog):
             }}""")
         self.btn[11].repaint()
         sleep(0.1)
-        self.close()
+        self.close_window()
     
     def delete_digit(self):
         self.btn[10].setStyleSheet(f"""
@@ -180,7 +183,7 @@ class PasswordCheckApp(QtWidgets.QDialog):
         self.update_display()
     
     def update_display(self):
-        if self.timer.isActive() : self.timer.stop()
+        if self.text_timer.isActive() : self.text_timer.stop()
         password_label_text = ""
         for i in range(4):
             password_label_text += "●" if i < len(self.entered_password) else "○"
@@ -199,13 +202,13 @@ class PasswordCheckApp(QtWidgets.QDialog):
             self.password_label.repaint()
             self.access = True
             sleep(0.6)
-            self.close()
+            self.close_window()
         else:
             self.password_label.setText("E R R O R")
             self.password_label.setStyleSheet("""color:red;font-weight: bold;""")
             self.password_label.repaint()
             self.entered_password = ""
-            self.timer.start()  # 開始計時3秒
+            self.text_timer.start()  # 開始計時3秒
 
     def recover_display(self):
         self.update_display()
@@ -214,6 +217,21 @@ class PasswordCheckApp(QtWidgets.QDialog):
         self.entered_password = ""
         self.update_display()
         self.state_label.setPixmap(self.scaled_lock_pixmap)
+
+    def eventFilter(self, source, event):  # 當 UI 有發生變化，就重新計時
+        if event.type() == QEvent.Paint:
+            self.display_timer.start()
+        return super().eventFilter(source, event)
+
+    def showEvent(self, event):
+        self.installEventFilter(self)
+        self.display_timer.start()
+        super().showEvent(event)
+
+    def close_window(self):
+        self.removeEventFilter(self)
+        self.display_timer.stop()
+        self.close()
         
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
