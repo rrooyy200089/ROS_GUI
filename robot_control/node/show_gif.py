@@ -26,6 +26,7 @@ class FullscreenGIF(QtWidgets.QWidget):
         
         # self.setWindowFlags(Qt.FramelessWindowHint)
         self.setWindowFlags(Qt.SplashScreen)
+        self.setGeometry(QtWidgets.QApplication.primaryScreen().geometry()) # 強制視窗設定為螢幕的大小
         
         self.movie.setScaledSize(QSize(self.screen.size()))
                 
