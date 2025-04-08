@@ -42,3 +42,13 @@ sudo chmod +x /lib/systemd/system-sleep/resume_trigger.sh
 systemctl --user daemon-reload
 systemctl --user enable ros_project_startup.service
 ```
+
+### Cancel Password Verification
+Modify File
+```
+sudo vi /etc/pam.d/gdm-password
+```
+Annotation **@include common-auth**
+```
+# @include common-auth
+```

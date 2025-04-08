@@ -6,9 +6,8 @@ After=suspend.target
 [Service]
 Type=simple
 WorkingDirectory=/home/roy/
-Environment="DISPLAY=:0"
-Environment="XAUTHORITY=/home/roy/.Xauthority"
-ExecStart=/usr/bin/bash -ic "/home/roy/test.sh"
+# ExecStart=/usr/bin/bash -ic "/home/roy/test.sh"
+ExecStart=/usr/bin/bash -ic "/home/roy/project/gui_ws/src/robot_control/auto_start_file/check_screen_locked.sh"
 Restart=on-failure
 RestartSec=5
 
