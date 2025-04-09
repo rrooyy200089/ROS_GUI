@@ -32,7 +32,7 @@ class MainWindow(QtWidgets.QWidget):
         # print("Screen width:", self.screen.width(), "Screen height:", self.screen.height())
         self.resize(self.screen.width(), int(self.screen.height()))
         self.car_msg_window = CarMessageWindow(self.screen, self.dpi, self.project_path)
-        self.yesno_window = YesNoWindow(self.screen, self.dpi)
+        self.yesno_window = YesNoWindow(self.screen, self.project_path)
         self.gif_gui = FullscreenGIF(self, self.screen, self.dpi, self.project_path)
         self.Btn = BtnPush(project_path)
         self.btn = [[None] * 2 for _ in range(2)]
@@ -89,7 +89,8 @@ class CarMessageWindow(QtWidgets.QDialog):
         self.setWindowTitle("車子低電量警告")
         self.screen = screen_size
         self.dpi = srceen_dpi
-        self.image_path = project_path + "/icon/low-battery.png"
+        self.low_power_image_path = project_path + "/icon/low-battery.png"
+        self.apply_image_path = project_path + "/icon/check.png"
         self.car_power = 0
         self.car_enable = True
         self.n = 0
@@ -104,7 +105,7 @@ class CarMessageWindow(QtWidgets.QDialog):
 
         # 顯示沒電圖示的label
         lab_icon = QtWidgets.QLabel()
-        pixmap = QtGui.QPixmap(self.image_path) # 載入沒電的圖片
+        pixmap = QtGui.QPixmap(self.low_power_image_path) # 載入沒電的圖片
         pixmap_size = int((750*self.dpi//188))
         scaled_pixmap = pixmap.scaled(int(pixmap_size*1.76552), pixmap_size, aspectRatioMode=QtCore.Qt.KeepAspectRatio)  # 調整圖片尺寸，其中1.76552是圖片長與寬的比例
         lab_icon.setPixmap(scaled_pixmap)
@@ -115,7 +116,7 @@ class CarMessageWindow(QtWidgets.QDialog):
         self.mbtn = QtWidgets.QPushButton()
         self.mbtn.setText("OK")
         self.mbtn.setFont(QtGui.QFont('Times New Roman', int(200*self.dpi//188)))
-        check_icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton)
+        check_icon = QtGui.QIcon(QtGui.QPixmap(self.apply_image_path))
         self.mbtn.setIcon(check_icon) 
         self.mbtn.setIconSize(QtCore.QSize(self.mbtn.size()*0.7*self.dpi/188))
         self.mbtn.setStyleSheet("QPushButton{border : 2px solid black;background-color : white;}")
@@ -149,11 +150,12 @@ class CarMessageWindow(QtWidgets.QDialog):
         super().showEvent(event)
 
 class YesNoWindow(QtWidgets.QDialog):
-    def __init__(self, screen_size, srceen_dpi):
+    def __init__(self, screen_size, project_path):
         super().__init__()
         self.setWindowTitle("確認是否執行動作")
         self.screen = screen_size # 得到畫面可以顯示範圍
-        self.dpi = srceen_dpi
+        self.apply_image_path = project_path + "/icon/check.png"    # 打勾圖示
+        self.cancel_image_path = project_path + "/icon/delete.png"  # 打叉圖示
         self.resize(int(self.screen.width()*0.9), int(self.screen.height()*0.9))
         self.move(int((self.screen.width() - self.screen.width()*0.9) // 2), int((self.screen.height() - self.screen.height()*0.9) // 2))
         self.inactivity_timer = QtCore.QTimer(self)
@@ -168,11 +170,11 @@ class YesNoWindow(QtWidgets.QDialog):
         
         # Yes按鈕
         self.Ybtn = QtWidgets.QPushButton()
-        yes_icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton)
+        yes_icon = QtGui.QIcon(QtGui.QPixmap(self.apply_image_path))
         self.Ybtn.setIcon(yes_icon)
         self.Ybtn.setFixedSize(button_size_width, button_size_height)
         self.Ybtn.setStyleSheet("QPushButton{border : 3px solid gray;background-color : white;}")
-        self.Ybtn.setIconSize(self.Ybtn.size())
+        self.Ybtn.setIconSize(QtCore.QSize(self.Ybtn.size()*0.9))
         self.Ybtn.pressed.connect(lambda x="Yes": self.btn_pressed(x))  # 當按鈕"按下"時，所要執行的函式
         self.Ybtn.released.connect(self.accept) # 當按鈕"放開"時，所要執行的函式，其中函式為QDialog提供的方法
         # self.Ybtn.clicked.connect(self.accept)  # QDialog提供的方法
@@ -181,11 +183,11 @@ class YesNoWindow(QtWidgets.QDialog):
 
         # No按鈕
         self.Nbtn = QtWidgets.QPushButton()
-        no_icon = self.style().standardIcon(QtWidgets.QStyle.SP_DialogCancelButton)
+        no_icon = QtGui.QIcon(QtGui.QPixmap(self.cancel_image_path))
         self.Nbtn.setIcon(no_icon)
         self.Nbtn.setFixedSize(button_size_width, button_size_height)
         self.Nbtn.setStyleSheet("QPushButton{border : 3px solid gray;background-color : white;}")
-        self.Nbtn.setIconSize(self.Nbtn.size())
+        self.Nbtn.setIconSize(self.Nbtn.size()*0.9)
         self.Nbtn.pressed.connect(lambda x="No": self.btn_pressed(x))  # 當按鈕"按下"時，所要執行的函式
         self.Nbtn.released.connect(self.reject) # 當lightgray按鈕"放開"時，所要執行的函式，其中函式為QDialog提供的方法
         # self.Nbtn.clicked.connect(self.reject)  # QDialog提供的方法
