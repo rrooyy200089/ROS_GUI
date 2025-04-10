@@ -298,33 +298,8 @@ class BtnPush():
             Process.close(ros_process=process, kill_param=param)
             sleep(1)
             enable = True
-        print("close")
-
-    def reset(self):
-        # window.btn[1][1].setStyleSheet("background-color : lightgray")
-        # ret = window.yesno_window.exec_()
-        # if ret == QtWidgets.QDialog.Rejected : return   
-        SaveNavigationInfo.write(program_reset = True, goal_start = self.navigation_goal)
-        # c = threading.Thread(target=self.close())
-        # c.daemon = True
-        # r = threading.Thread(target=Process.restart())
-        # r.daemon = True
-        if os.path.exists(self.script_path):  # 判斷檔案是否存在
-            self.navigation_client.cancel_goal()    #取消當前導航
-            self.navigation_state_pub(False)
-            self.close(ask=False)
-            # c.start()
-            sleep(2)
-            Process.restart(self.script_path)
-            # c.start()
-            # c.join()
-            # sleep(2)
-            # r = threading.Thread(target=Process.restart(), daemon=True)
-            # r.start()
-        else :
-            print('No such file !!')
-        # creat_navigation_info.write()
-        print("reset")
+        # print("close")
+        subprocess.run(['systemctl', 'suspend'])
 
     # def pub_goal(self, goal_name=''):
     #     goal = TopologyMapActionGoal()
@@ -359,13 +334,6 @@ class Process():
                     subprocess.run(['kill', kill_param, command_pid])
                     sleep(1)
                     break
-
-    def restart(script_path):
-        # print(script_path)
-        try:
-            subprocess.Popen([script_path])
-        except Exception as e:
-            print("An error occurred while running the command:", e)
 
 class NavigationPlayMusic():
     def __init__(self, project_path):
