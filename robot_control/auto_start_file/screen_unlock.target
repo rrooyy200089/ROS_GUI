@@ -1,0 +1,4 @@
+[Unit]
+Description=Custom target triggered after resume 2
+DefaultDependencies=no
+StopWhenUnneeded=yes

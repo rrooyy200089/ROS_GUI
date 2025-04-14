@@ -299,7 +299,11 @@ class BtnPush():
             sleep(1)
             enable = True
         # print("close")
-        subprocess.run(['systemctl', 'suspend'])
+        subprocess.run(['dbus-send', '--type=method_call',
+                        '--dest=org.gnome.ScreenSaver',
+                        '/org/gnome/ScreenSaver',
+                        'org.gnome.ScreenSaver.Lock'])
+        subprocess.run(['systemctl', '--user', 'start', 'screen_lock_target'])
 
     # def pub_goal(self, goal_name=''):
     #     goal = TopologyMapActionGoal()
