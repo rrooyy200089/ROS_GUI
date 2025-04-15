@@ -303,7 +303,7 @@ class BtnPush():
                         '--dest=org.gnome.ScreenSaver',
                         '/org/gnome/ScreenSaver',
                         'org.gnome.ScreenSaver.Lock'])
-        subprocess.run(['systemctl', '--user', 'start', 'screen_lock_target'])
+        subprocess.run(['systemctl', '--user', 'start', 'screen_lock.target'])
 
     # def pub_goal(self, goal_name=''):
     #     goal = TopologyMapActionGoal()
