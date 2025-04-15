@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys, os
+import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QFont, QIcon, QPixmap
 from PyQt5.QtCore import Qt, QTimer, QEvent
