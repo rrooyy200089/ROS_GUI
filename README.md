@@ -36,10 +36,10 @@ sudo fc-cache -fv
 ### Setting Environment (for automatic start)
 ```
 mkdir -p ~/.config/systemd/user
-cp ~/gui_ws/src/robot_control/auto_start_file/ros_project_startup.service ~/gui_ws/src/robot_control/auto_start_file/after-resume.target ~/.config/systemd/user/
-sudo cp ~/gui_ws/src/robot_control/auto_start_file/resume_trigger.sh /lib/systemd/system-sleep/
-sudo chmod +x /lib/systemd/system-sleep/resume_trigger.sh
+cp ~/gui_ws/src/robot_control/auto_start_file/*.service ~/gui_ws/src/robot_control/auto_start_file/*.target ~/.config/systemd/user/
+systemctl --user daemon-reexec
 systemctl --user daemon-reload
+systemctl --user enable screen_status.service
 systemctl --user enable ros_project_startup.service
 ```
 
