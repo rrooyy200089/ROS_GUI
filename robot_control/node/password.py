@@ -161,6 +161,7 @@ class PasswordCheckApp(QtWidgets.QDialog):
             self.update_display()
         
         if len(self.entered_password) == 4:
+            sleep(0.2) # 當已經輸入完四個數字密碼後，delay一段時間，讓GUI可以顯示完整的"● ● ● ●"
             self.check_password()
 
     def back(self):

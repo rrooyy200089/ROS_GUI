@@ -34,6 +34,7 @@ class MainWindow(QtWidgets.QWidget):
         self.car_msg_window = CarMessageWindow(self.screen, self.dpi, self.project_path)
         self.yesno_window = YesNoWindow(self.screen, self.project_path)
         self.gif_gui = FullscreenGIF(self, self.screen, self.dpi, self.project_path)
+        self.close_msg = CloseMagWindow(self.screen)
         self.Btn = BtnPush(project_path)
         self.btn = [[None] * 2 for _ in range(2)]
         self.inactivity_timer = QtCore.QTimer(self)
@@ -222,6 +223,41 @@ class YesNoWindow(QtWidgets.QDialog):
         super().showEvent(event)
         self.inactivity_timer.start()
 
+class CloseMagWindow(QtWidgets.QDialog):
+    def __init__(self, screen_size):
+        super().__init__()
+        self.screen = screen_size # 得到畫面可以顯示範圍
+        self.resize(int(self.screen.height()*0.35*4.5), int(self.screen.height()*0.35))
+        self.move(int((self.screen.width() - self.width()) // 2), int((self.screen.height() - self.height()) // 2))
+        self.ui()
+
+    def ui(self):
+        layout = QtWidgets.QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        self.label = QtWidgets.QLabel()
+        self.label.setFixedSize(self.size())
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setText("關閉中...")
+        self.label.setFont(QtGui.QFont('標楷體', int(self.height()//1.7)))
+        self.label.setStyleSheet("QLabel{color : red; background : white;}")
+
+        layout.addWidget(self.label)
+        self.setLayout(layout)
+
+        self.setWindowFlags(QtCore.Qt.SplashScreen | QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
+        self.setStyleSheet("""
+            QWidget {
+                border: 7px solid black;
+                /**padding: 5px ;**/
+            }
+        """)
+
+    def showEvent(self, event):
+        window.removeEventFilter(window) # 解除主視窗的事件檢測
+        window.inactivity_timer.stop()
+        super().showEvent(event)
+
 class BtnPush():
     def __init__(self, project_path):
         self.navigation_goal = rospy.get_param("/TopologyMap_server/start_node", "P1")
@@ -287,23 +323,11 @@ class BtnPush():
         window.btn[1][1].setStyleSheet("QPushButton{border : 3px solid gray;background-color : white}")
         ret = window.yesno_window.exec_()
         if ret == QtWidgets.QDialog.Rejected : return
-        else : SaveNavigationInfo.write()
-        # sleep(1)
-        param = '-15'
-        enable = False
-        while True:
-            process = Process.find_process()
-            if len(process) <= 1 and enable: break
-            # elif enable: param = '-9', print("Closing not completed yet!!!")
-            Process.close(ros_process=process, kill_param=param)
-            sleep(1)
-            enable = True
-        # print("close")
-        subprocess.run(['dbus-send', '--type=method_call',
-                        '--dest=org.gnome.ScreenSaver',
-                        '/org/gnome/ScreenSaver',
-                        'org.gnome.ScreenSaver.Lock'])
-        subprocess.run(['systemctl', '--user', 'start', 'screen_lock.target'])
+        # else : SaveNavigationInfo.write()
+        window.close_msg.show()
+        window.setEnabled(False)    # 設定主視窗不可用
+        # threading.Thread(target=Process.close).start()
+        QtCore.QTimer.singleShot(500, lambda:Process.close()) # 此方法可以開一個執行緒，500ms後再執行，不會阻塞程式; 如果直接執行，會因為Process.close()裡的sleep()函式導致阻塞程式，讓整個執行緒停住
 
     # def pub_goal(self, goal_name=''):
     #     goal = TopologyMapActionGoal()
@@ -329,11 +353,27 @@ class Process():
         
         return process
 
-    def close(ros_process={}, kill_param='-15'):
+    def close(ros_process = {}, param='-15'):
+        enable = False
+        while True:
+            process = Process.find_process()
+            if len(process) <= 1 and enable: break
+            Process.give_command(ros_process=process, kill_param=param)
+            # sleep(1)
+            enable = True
+
+        subprocess.run(['dbus-send', '--type=method_call',
+                        '--dest=org.gnome.ScreenSaver',
+                        '/org/gnome/ScreenSaver',
+                        'org.gnome.ScreenSaver.Lock'])  # 鎖定螢幕
+        # subprocess.run(['systemctl', '--user', 'start', 'screen_lock.target'])  # 透過觸發target來啟動自動啟動所需的服務
+
+
+    def give_command(ros_process={}, kill_param='-15'):
         for i in closing_order:
             for command, command_pid in ros_process.items():
                 if i in command:
-                    if 'gui' in command: window.close()
+                    if 'gui' in command: window.close_msg.close(), window.close()
                     print(f'name : {command}  PID : {command_pid}')
                     subprocess.run(['kill', kill_param, command_pid])
                     sleep(1)
