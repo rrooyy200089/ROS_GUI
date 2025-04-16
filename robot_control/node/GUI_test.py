@@ -366,7 +366,7 @@ class Process():
                         '--dest=org.gnome.ScreenSaver',
                         '/org/gnome/ScreenSaver',
                         'org.gnome.ScreenSaver.Lock'])  # 鎖定螢幕
-        # subprocess.run(['systemctl', '--user', 'start', 'screen_lock.target'])  # 透過觸發target來啟動自動啟動所需的服務
+        subprocess.run(['systemctl', '--user', 'start', 'screen_lock.target'])  # 透過觸發target來啟動自動啟動所需的服務
 
 
     def give_command(ros_process={}, kill_param='-15'):
