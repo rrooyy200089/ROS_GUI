@@ -412,5 +412,6 @@ if __name__ == "__main__":
     window = MainWindow(screen, dpi, path)
     player = NavigationPlayMusic(path)
     window.show()
+    window.screensaver() #讓GUI啟動時是顯示螢幕保護畫面
     window.inactivity_timer.start()
     sys.exit(app.exec_())
