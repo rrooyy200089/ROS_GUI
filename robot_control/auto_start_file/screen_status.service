@@ -3,8 +3,9 @@ Description=Check Screen is Lock Service
 
 [Service]
 Type=simple
-WorkingDirectory=/home/roy/
-ExecStart=/usr/bin/bash -ic "/home/roy/project/gui_ws/src/robot_control/auto_start_file/check_screen_lock.sh"
+# WorkingDirectory=/home/roy/
+# ExecStart=/usr/bin/bash -ic "/home/roy/project/gui_ws/src/robot_control/auto_start_file/check_screen_lock.sh"
+ExecStart=/usr/bin/bash -ic "~/check_screen_lock.sh"
 Restart=on-failure
 RestartSec=5
 

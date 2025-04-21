@@ -4,9 +4,10 @@ After=screen_lock.target
 
 [Service]
 Type=simple
-WorkingDirectory=/home/roy/
+# WorkingDirectory=/home/roy/
 # ExecStart=/usr/bin/bash -ic "/home/roy/test.sh"
-ExecStart=/usr/bin/bash -ic "/home/roy/project/gui_ws/src/robot_control/auto_start_file/check_screen_unlock.sh"
+# ExecStart=/usr/bin/bash -ic "/home/roy/project/gui_ws/src/robot_control/auto_start_file/check_screen_unlock.sh"
+ExecStart=/usr/bin/bash -ic "~/check_screen_unlock.sh"
 Restart=on-failure
 RestartSec=5
 

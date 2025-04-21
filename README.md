@@ -37,6 +37,7 @@ sudo fc-cache -fv
 ```
 mkdir -p ~/.config/systemd/user
 cp ~/gui_ws/src/robot_control/auto_start_file/*.service ~/gui_ws/src/robot_control/auto_start_file/*.target ~/.config/systemd/user/
+cp ~/gui_ws/src/robot_control/auto_start_file/*.sh ~/
 systemctl --user daemon-reexec
 systemctl --user daemon-reload
 systemctl --user enable screen_status.service
