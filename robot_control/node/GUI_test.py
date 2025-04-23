@@ -69,6 +69,7 @@ class MainWindow(QtWidgets.QWidget):
         self.setLayout(grid)
         self.inactivity_timer.timeout.connect(self.screensaver)
         self.installEventFilter(self)
+        self.setCursor(QtCore.Qt.BlankCursor) # 設定不要顯示游標
 
     def screensaver(self):  # 當一段時間 UI 都沒有變化時，就顯示螢幕保護程式
         self.removeEventFilter(self) # 解除主視窗的事件檢測
@@ -125,6 +126,8 @@ class CarMessageWindow(QtWidgets.QDialog):
         self.mbtn.released.connect(self.btn) # 當按鈕"放開"時，所要執行的函式
         # self.mbtn.setFocusPolicy(QtCore.Qt.NoFocus)     # 不要讓按鈕聚焦
         msg_layout.addWidget(self.mbtn)
+
+        self.setCursor(QtCore.Qt.BlankCursor) # 設定不要顯示游標
 
     def get_car_power(self, msg):
         self.car_power = msg.data
@@ -197,6 +200,8 @@ class YesNoWindow(QtWidgets.QDialog):
 
         self.inactivity_timer.timeout.connect(self.reject) # 當一段時間都沒有去點選後，就關閉Yes/No視窗
 
+        self.setCursor(QtCore.Qt.BlankCursor) # 設定不要顯示游標
+
     def btn_pressed(self, x):        # 當按鈕按下時，會根據回傳的x內容，將所對應的按鈕背景顏色改成黃色
         btn = (self.Ybtn if x == "Yes" else self.Nbtn)
         btn.setStyleSheet("QPushButton{border : 3px solid gray;background-color : yellow;}")
@@ -252,6 +257,8 @@ class CloseMagWindow(QtWidgets.QDialog):
                 /**padding: 5px ;**/
             }
         """)
+
+        self.setCursor(QtCore.Qt.BlankCursor) # 設定不要顯示游標
 
     def showEvent(self, event):
         window.removeEventFilter(window) # 解除主視窗的事件檢測

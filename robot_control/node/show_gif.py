@@ -41,6 +41,8 @@ class FullscreenGIF(QtWidgets.QWidget):
         self.label.setFixedSize(self.screen.size())
                 
         self.setStyleSheet("background-color: black;")
+
+        self.setCursor(Qt.BlankCursor) # 設定不要顯示游標
         
     # def keyPressEvent(self, event):
     #     if event.key() == Qt.Key_Escape:

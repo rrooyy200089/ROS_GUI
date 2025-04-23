@@ -137,6 +137,8 @@ class PasswordCheckApp(QtWidgets.QDialog):
         self.display_timer.timeout.connect(self.close_window)
         # self.show()
 
+        self.setCursor(Qt.BlankCursor) # 設定不要顯示游標
+
     def btn_pressed(self, key):
         self.btn[key].setStyleSheet(f"""
                 QPushButton {{
